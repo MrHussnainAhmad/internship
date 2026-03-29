@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getApiUser } from "@/lib/api-auth";
 import { getDb } from "@/lib/db";
 import { ensureIndexes } from "@/lib/indexes";
 import { createNotification } from "@/lib/notifications";
@@ -8,19 +8,15 @@ import { createNotification } from "@/lib/notifications";
 const REAPPLY_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
 export async function POST(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ slug: string }> }
 ) {
-  const session = await auth();
-  if (!session?.user?.email) {
+  const user = await getApiUser(request);
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const db = await getDb();
-  const user = await db.collection("users").findOne(
-    { email: session.user.email },
-    { projection: { _id: 1, role: 1, name: 1 } }
-  );
   if (!user || user.role !== "student") {
     return NextResponse.json(
       { error: "Only student accounts can apply" },

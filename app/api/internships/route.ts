@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createInternshipSlug } from "@/lib/slug";
-import { auth } from "@/lib/auth";
+import { getApiUser } from "@/lib/api-auth";
 import { getDb } from "@/lib/db";
 import { formatInternshipTitle } from "@/lib/format";
 import { ensureIndexes } from "@/lib/indexes";
@@ -22,19 +22,6 @@ const internshipSchema = z.object({
   description: z.string().trim().min(1).max(300),
 });
 
-async function getCompanyUser() {
-  const session = await auth();
-  if (!session?.user?.email) return null;
-
-  const db = await getDb();
-  const user = await db.collection("users").findOne(
-    { email: session.user.email },
-    { projection: { _id: 1, role: 1 } }
-  );
-  if (!user || user.role !== "company") return null;
-  return user;
-}
-
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const result = await queryInternships({
@@ -50,8 +37,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: Request) {
-  const companyUser = await getCompanyUser();
-  if (!companyUser) {
+  const companyUser = await getApiUser(request);
+  if (!companyUser || companyUser.role !== "company") {
     return NextResponse.json(
       { error: "Only company accounts can post internships" },
       { status: 403 }

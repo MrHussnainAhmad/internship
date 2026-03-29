@@ -1,23 +1,15 @@
 import { ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getApiUser } from "@/lib/api-auth";
 import { getDb } from "@/lib/db";
 import { formatInternshipTitle } from "@/lib/format";
 
-export async function GET() {
-  const session = await auth();
-  if (!session?.user?.email) {
+export async function GET(request: Request) {
+  const currentUser = await getApiUser(request);
+  if (!currentUser || !currentUser.role) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-
   const db = await getDb();
-  const currentUser = await db.collection("users").findOne(
-    { email: session.user.email },
-    { projection: { _id: 1, role: 1 } }
-  );
-  if (!currentUser || !currentUser.role) {
-    return NextResponse.json({ chats: [] });
-  }
 
   const filter =
     currentUser.role === "company"

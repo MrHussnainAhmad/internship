@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
-import { auth } from "@/lib/auth";
+import { getApiUser } from "@/lib/api-auth";
 import { requireEnv } from "@/lib/env";
 
 cloudinary.config({
@@ -51,8 +51,8 @@ function uploadBuffer({
 }
 
 export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user?.email) {
+  const currentUser = await getApiUser(request);
+  if (!currentUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

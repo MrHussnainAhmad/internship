@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { ObjectId } from "mongodb";
-import { auth } from "@/lib/auth";
+import { getApiUser } from "@/lib/api-auth";
 import { getDb } from "@/lib/db";
 
 const schema = z.object({
@@ -16,23 +15,12 @@ const schema = z.object({
   resumeUrl: z.string().url().optional().or(z.literal("")),
 });
 
-async function getUserObjectId() {
-  const session = await auth();
-  if (!session?.user?.email) return null;
-  const db = await getDb();
-  const user = await db
-    .collection("users")
-    .findOne({ email: session.user.email }, { projection: { _id: 1, role: 1 } });
-  if (!user) return null;
-  return { userId: user._id as ObjectId, role: user.role as string | undefined };
-}
-
-export async function GET() {
-  const user = await getUserObjectId();
+export async function GET(request: Request) {
+  const user = await getApiUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const db = await getDb();
-  const profile = await db.collection("studentProfiles").findOne({ userId: user.userId });
+  const profile = await db.collection("studentProfiles").findOne({ userId: user._id });
   if (!profile) return NextResponse.json({ profile: null });
 
   return NextResponse.json({
@@ -51,7 +39,7 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
-  const user = await getUserObjectId();
+  const user = await getApiUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const parsed = schema.safeParse(await request.json());
@@ -65,7 +53,7 @@ export async function PUT(request: Request) {
   const data = parsed.data;
   const db = await getDb();
   await db.collection("studentProfiles").updateOne(
-    { userId: user.userId },
+    { userId: user._id },
     {
       $set: {
         ...data,

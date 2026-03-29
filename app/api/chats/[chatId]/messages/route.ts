@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { auth } from "@/lib/auth";
+import { getApiUser } from "@/lib/api-auth";
 import { getDb } from "@/lib/db";
 import { createNotification } from "@/lib/notifications";
 
@@ -9,15 +9,10 @@ const messageSchema = z.object({
   text: z.string().trim().min(1).max(1000),
 });
 
-async function getAuthorizedChat(chatId: string, email: string) {
+async function getAuthorizedChat(chatId: string, userId: ObjectId) {
   if (!ObjectId.isValid(chatId)) return { error: "Invalid chat id", status: 400 };
 
   const db = await getDb();
-  const currentUser = await db.collection("users").findOne(
-    { email },
-    { projection: { _id: 1 } }
-  );
-  if (!currentUser) return { error: "Unauthorized", status: 401 };
 
   const chat = await db.collection("chats").findOne(
     { _id: new ObjectId(chatId) },
@@ -26,24 +21,24 @@ async function getAuthorizedChat(chatId: string, email: string) {
   if (!chat) return { error: "Chat not found", status: 404 };
 
   const isParticipant =
-    (chat.companyId as ObjectId).toString() === currentUser._id.toString() ||
-    (chat.studentId as ObjectId).toString() === currentUser._id.toString();
+    (chat.companyId as ObjectId).toString() === userId.toString() ||
+    (chat.studentId as ObjectId).toString() === userId.toString();
   if (!isParticipant) return { error: "Forbidden", status: 403 };
 
-  return { db, currentUser, chat };
+  return { db, currentUserId: userId, chat };
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ chatId: string }> }
 ) {
-  const session = await auth();
-  if (!session?.user?.email) {
+  const currentUser = await getApiUser(request);
+  if (!currentUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { chatId } = await context.params;
-  const authorized = await getAuthorizedChat(chatId, session.user.email);
+  const authorized = await getAuthorizedChat(chatId, currentUser._id);
   if ("error" in authorized) {
     return NextResponse.json({ error: authorized.error }, { status: authorized.status });
   }
@@ -63,7 +58,7 @@ export async function GET(
       senderRole: String(message.senderRole ?? ""),
       createdAt: new Date(message.createdAt ?? Date.now()).toISOString(),
     })),
-    currentUserId: authorized.currentUser._id.toString(),
+    currentUserId: authorized.currentUserId.toString(),
   });
 }
 
@@ -71,8 +66,8 @@ export async function POST(
   request: Request,
   context: { params: Promise<{ chatId: string }> }
 ) {
-  const session = await auth();
-  if (!session?.user?.email) {
+  const currentUser = await getApiUser(request);
+  if (!currentUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -82,21 +77,21 @@ export async function POST(
   }
 
   const { chatId } = await context.params;
-  const authorized = await getAuthorizedChat(chatId, session.user.email);
+  const authorized = await getAuthorizedChat(chatId, currentUser._id);
   if ("error" in authorized) {
     return NextResponse.json({ error: authorized.error }, { status: authorized.status });
   }
 
   const senderRole =
     (authorized.chat.companyId as ObjectId).toString() ===
-    authorized.currentUser._id.toString()
+    authorized.currentUserId.toString()
       ? "company"
       : "student";
 
   const now = new Date();
   await authorized.db.collection("chatMessages").insertOne({
     chatId: authorized.chat._id,
-    senderId: authorized.currentUser._id,
+    senderId: authorized.currentUserId,
     senderRole,
     text: parsed.data.text,
     createdAt: now,

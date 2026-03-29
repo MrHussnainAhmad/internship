@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { auth } from "@/lib/auth";
+import { getApiUser } from "@/lib/api-auth";
 import { getDb } from "@/lib/db";
 import { ensureIndexes } from "@/lib/indexes";
 
@@ -15,15 +15,15 @@ const payloadSchema = z.object({
   role: roleSchema,
 });
 
-export async function GET() {
-  const session = await auth();
-  if (!session?.user?.email) {
+export async function GET(request: Request) {
+  const currentUser = await getApiUser(request);
+  if (!currentUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const db = await getDb();
   const user = await db.collection("users").findOne(
-    { email: session.user.email },
+    { _id: currentUser._id },
     {
       projection: {
         _id: 1,
@@ -53,8 +53,8 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
-  const session = await auth();
-  if (!session?.user?.email) {
+  const currentUser = await getApiUser(request);
+  if (!currentUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -74,7 +74,7 @@ export async function PUT(request: Request) {
   const users = db.collection("users");
   const existing = await users.findOne({
     username,
-    email: { $ne: session.user.email },
+    _id: { $ne: currentUser._id },
   });
 
   if (existing) {
@@ -85,7 +85,7 @@ export async function PUT(request: Request) {
   }
 
   await users.updateOne(
-    { email: session.user.email },
+    { _id: currentUser._id },
     {
       $set: {
         name,

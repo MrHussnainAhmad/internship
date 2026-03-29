@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { auth } from "@/lib/auth";
+import { getApiUser } from "@/lib/api-auth";
 import { getDb } from "@/lib/db";
 
 const schema = z.object({
@@ -9,10 +9,8 @@ const schema = z.object({
 });
 
 export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const user = await getApiUser(request);
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const parsed = schema.safeParse(await request.json());
   if (!parsed.success || !ObjectId.isValid(parsed.data.notificationId)) {
@@ -20,12 +18,6 @@ export async function POST(request: Request) {
   }
 
   const db = await getDb();
-  const user = await db
-    .collection("users")
-    .findOne({ email: session.user.email }, { projection: { _id: 1 } });
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   await db.collection("notifications").updateOne(
     {
