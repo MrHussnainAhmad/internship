@@ -1,40 +1,36 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { getDb } from "@/lib/db";
-import { createMobileAccessToken } from "@/lib/mobile-token";
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const redirectUrl = url.searchParams.get("redirectUrl");
+  const redirectUrl = url.searchParams.get('redirectUrl');
+
   if (!redirectUrl) {
-    return NextResponse.json({ error: "Missing redirectUrl" }, { status: 400 });
+    return NextResponse.json({ error: 'Missing redirectUrl' }, { status: 400 });
   }
 
-  const session = await auth();
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const cookieStore = await cookies();
+  const sessionToken =
+    cookieStore.get('next-auth.session-token')?.value ||
+    cookieStore.get('__Secure-next-auth.session-token')?.value ||
+    '';
 
-  const db = await getDb();
-  const user = await db.collection("users").findOne(
-    { email: session.user.email },
-    { projection: { _id: 1, email: 1, role: 1, username: 1 } }
-  );
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const deepLink = `${redirectUrl}${redirectUrl.includes('?') ? '&' : '?'}token=${sessionToken}`;
 
-  const token = createMobileAccessToken({
-    sub: user._id.toString(),
-    email: String(user.email ?? ""),
-    role:
-      user.role === "student" || user.role === "company"
-        ? user.role
-        : undefined,
-    username: user.username ? String(user.username) : undefined,
+  const html = `<!DOCTYPE html>
+<html>
+  <head>
+    <title>Redirecting...</title>
+    <meta http-equiv="refresh" content="0;url=${deepLink}" />
+  </head>
+  <body>
+    <script>window.location.replace(${JSON.stringify(deepLink)});</script>
+    <p>Returning to app...</p>
+  </body>
+</html>`;
+
+  return new NextResponse(html, {
+    status: 200,
+    headers: { 'Content-Type': 'text/html' },
   });
-
-  const target = new URL(redirectUrl);
-  target.searchParams.set("token", token);
-  return NextResponse.redirect(target.toString());
 }
