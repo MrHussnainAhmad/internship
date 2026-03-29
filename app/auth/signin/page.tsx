@@ -1,6 +1,11 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { GoogleSignInButton } from "@/components/google-signin-button";
+import { DevAuthBypassButtons } from "@/components/dev-auth-bypass-buttons";
+
+const isDevAuthBypassEnabled =
+  process.env.NODE_ENV === "development" &&
+  process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true";
 
 export default async function SignInPage() {
   const session = await auth();
@@ -19,6 +24,7 @@ export default async function SignInPage() {
           Sign in with Google to continue to your internship workspace.
         </p>
         <GoogleSignInButton />
+        {isDevAuthBypassEnabled ? <DevAuthBypassButtons /> : null}
       </div>
     </section>
   );

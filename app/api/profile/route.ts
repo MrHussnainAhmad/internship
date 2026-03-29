@@ -11,7 +11,9 @@ const payloadSchema = z.object({
     .string()
     .trim()
     .toLowerCase()
-    .regex(/^[a-z0-9_]{3,20}$/),
+    .regex(/^[a-z0-9_]{3,20}$/)
+    .optional(),
+  bio: z.string().trim().max(500).optional(),
   role: roleSchema,
 });
 
@@ -41,13 +43,15 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json({
+    name: user.name ? String(user.name) : null,
+    role: user.role ? String(user.role) : null,
     user: {
       id: user._id.toString(),
       email: String(user.email),
-      name: String(user.name ?? ""),
-      username: user.username ? String(user.username) : "",
-      role: user.role ? String(user.role) : "",
-      image: user.image ? String(user.image) : "",
+      name: user.name ? String(user.name) : null,
+      username: user.username ? String(user.username) : null,
+      role: user.role ? String(user.role) : null,
+      image: user.image ? String(user.image) : null,
     },
   });
 }
@@ -67,33 +71,38 @@ export async function PUT(request: Request) {
     );
   }
 
-  const { name, username, role } = parsed.data;
+  const { name, username, bio, role } = parsed.data;
 
   await ensureIndexes();
   const db = await getDb();
   const users = db.collection("users");
-  const existing = await users.findOne({
-    username,
-    _id: { $ne: currentUser._id },
-  });
 
-  if (existing) {
-    return NextResponse.json(
-      { error: "Username already in use" },
-      { status: 409 }
-    );
+  if (username) {
+    const existing = await users.findOne({
+      username,
+      _id: { $ne: currentUser._id },
+    });
+
+    if (existing) {
+      return NextResponse.json(
+        { error: "Username already in use" },
+        { status: 409 }
+      );
+    }
   }
+
+  const updateData: Record<string, any> = {
+    name,
+    role,
+    updatedAt: new Date(),
+  };
+
+  if (username !== undefined) updateData.username = username;
+  if (bio !== undefined) updateData.bio = bio;
 
   await users.updateOne(
     { _id: currentUser._id },
-    {
-      $set: {
-        name,
-        username,
-        role,
-        updatedAt: new Date(),
-      },
-    }
+    { $set: updateData }
   );
 
   return NextResponse.json({ ok: true });

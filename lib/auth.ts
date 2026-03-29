@@ -1,10 +1,34 @@
 import type { NextAuthOptions } from "next-auth";
 import { getServerSession } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/db";
 import { ensureIndexes } from "@/lib/indexes";
 import { requireEnv } from "@/lib/env";
+
+const isDevAuthBypassEnabled =
+  process.env.NODE_ENV === "development" &&
+  process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true";
+
+type AuthRole = "student" | "company";
+
+const devUserByRole: Record<AuthRole, { email: string; name: string; username: string }> = {
+  student: {
+    email: "dev-student@internhub.local",
+    name: "Dev Student",
+    username: "dev_student",
+  },
+  company: {
+    email: "dev-company@internhub.local",
+    name: "Dev Company",
+    username: "dev_company",
+  },
+};
+
+function parseAuthRole(value: unknown): AuthRole | null {
+  return value === "student" || value === "company" ? value : null;
+}
 
 function getGooglePicture(profile: unknown): string {
   if (!profile || typeof profile !== "object") return "";
@@ -17,17 +41,82 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
-  providers: [
-    GoogleProvider({
-      clientId: requireEnv("GOOGLE_CLIENT_ID"),
-      clientSecret: requireEnv("GOOGLE_CLIENT_SECRET"),
-    }),
-  ],
+  providers: (() => {
+    const providers: NextAuthOptions["providers"] = [
+      GoogleProvider({
+        clientId: requireEnv("GOOGLE_CLIENT_ID"),
+        clientSecret: requireEnv("GOOGLE_CLIENT_SECRET"),
+      }),
+    ];
+
+    if (!isDevAuthBypassEnabled) return providers;
+
+    providers.push(
+      CredentialsProvider({
+        id: "credentials",
+        name: "Dev Auth Bypass",
+        credentials: {
+          role: { label: "Role", type: "text" },
+        },
+        async authorize(credentials) {
+          // DEV ONLY - remove after real auth integration.
+          if (!isDevAuthBypassEnabled) return null;
+
+          const role = parseAuthRole(credentials?.role);
+          if (!role) return null;
+
+          await ensureIndexes();
+          const db = await getDb();
+          const users = db.collection("users");
+          const now = new Date();
+          const devUser = devUserByRole[role];
+
+          await users.updateOne(
+            { email: devUser.email },
+            {
+              $set: {
+                email: devUser.email,
+                name: devUser.name,
+                username: devUser.username,
+                role,
+                image: "",
+                provider: "dev-bypass",
+                updatedAt: now,
+              },
+              $setOnInsert: { createdAt: now },
+            },
+            { upsert: true }
+          );
+
+          const dbUser = await users.findOne(
+            { email: devUser.email },
+            { projection: { _id: 1, email: 1, name: 1, image: 1 } }
+          );
+
+          if (!dbUser) return null;
+
+          return {
+            id: (dbUser._id as ObjectId).toString(),
+            email: String(dbUser.email),
+            name: String(dbUser.name ?? devUser.name),
+            image: String(dbUser.image ?? ""),
+          };
+        },
+      })
+    );
+
+    return providers;
+  })(),
   pages: {
     signIn: "/auth/signin",
   },
   callbacks: {
     async signIn({ user, account, profile }) {
+      if (account?.provider === "credentials") {
+        // DEV ONLY - remove after real auth integration.
+        return isDevAuthBypassEnabled;
+      }
+
       if (!user.email || account?.provider !== "google") return false;
       await ensureIndexes();
 
