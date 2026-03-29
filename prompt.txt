@@ -1,0 +1,215 @@
+You are a senior full-stack developer. I want you to design and help build a production-level MVP web application using modern best practices. Think like a startup engineer, not a tutorial coder.
+
+# 🧠 Project Overview
+
+We are building a platform similar to LinkedIn/Indeed but focused ONLY on internships. The goal is to create a fast, clean, and highly optimized system where:
+
+* Students can find internships easily
+* Companies can post internships and find candidates
+* Matching is based on skills, level, and preferences
+
+This is NOT a generic job board. It should feel smart, lightweight, and focused.
+
+---
+
+# 🏗️ Tech Stack (STRICT)
+
+* Frontend: Next.js (App Router, latest version)
+* Backend: Next.js API routes (no separate backend for MVP)
+* Database: MongoDB (optimized schema, minimal storage usage)
+* Auth: NextAuth with Google OAuth ONLY (no password system initially)
+* Storage: Cloudinary (for images and PDFs)
+* Deployment-ready structure (Vercel compatible)
+
+---
+
+# ⚡ Core Requirements
+
+## 🔐 Authentication
+
+* Google OAuth login
+* On first login:
+
+  * Store email, name, profile image
+  * Redirect to profile completion
+* Allow user to EDIT name and set:
+
+  * username (unique)
+  * role (student or company)
+
+---
+
+## 👤 User System
+
+### users collection (minimal)
+
+* email
+* name
+* username
+* role
+* provider (google)
+
+---
+
+### studentProfiles
+
+* userId
+* skills (max 5–10)
+* level (beginner/intermediate/advanced)
+* education
+* GPA (optional)
+* languages
+* location (city)
+* country
+* preferredType (paid/unpaid/learn_and_earn)
+* resumeUrl (optional)
+
+---
+
+### companyProfiles
+
+* userId
+* companyName
+* industry
+* location
+* country
+* isRemote (boolean)
+* description (short, max 200 chars)
+
+---
+
+## 📢 internships collection (VERY IMPORTANT)
+
+* companyId
+* title
+* skillsRequired
+* level
+* type (paid/unpaid/learn_and_earn)
+* isPaid (boolean)
+* location
+* country
+* isRemote
+* duration
+* resumeRequired
+* imageUrl (optional)
+* description (max 300 chars)
+
+---
+
+## 📦 File Handling
+
+* Use Cloudinary
+* Accept uploads up to ~1MB
+* Compress automatically:
+
+  * Resize max 800px
+  * Convert to WebP
+  * Target ~130KB per image
+* PDFs max ~300KB
+* Store ONLY URLs in database
+* Do NOT store profile images (use Google image URL)
+
+---
+
+# 🔍 Smart Search System (IMPORTANT)
+
+Implement intelligent search parsing:
+
+Examples:
+
+* "unity internship" → filter by skill
+* "unity internship lahore" → filter by skill + location
+* "internship lahore" → filter by location
+
+Features:
+
+* Extract keywords
+* Detect location (city + country)
+* Include remote jobs in results
+* Add filter UI (location, level, type, paid/unpaid)
+
+---
+
+# 🌍 Location System
+
+* Store both city and country
+* Default country = Pakistan
+* Design system scalable for global use later
+
+---
+
+# ⚡ Performance & Optimization
+
+* Keep each document under ~5–10KB
+* Avoid redundant data
+* Use indexing on:
+
+  * skillsRequired
+  * location
+  * country
+* Use pagination for all listings
+* Optimize API responses (send only required fields)
+
+---
+
+# 🎨 UI/UX (VERY IMPORTANT)
+
+DO NOT generate generic AI-looking UI.
+
+Requirements:
+
+* Clean, modern, minimal design
+* Professional spacing and typography
+* No template-like layouts
+* Inspired by real products (LinkedIn, Notion, etc.)
+* Focus on usability and clarity
+
+Pages:
+
+* Landing page (SEO optimized)
+* Auth flow
+* Dashboard (student/company)
+* Internship listing page
+* Post internship page
+
+---
+
+# 🔎 SEO Requirements (CRITICAL)
+
+* Use Next.js SSR/SSG properly
+* Dynamic meta tags for internship pages
+* Clean URLs (e.g. /internships/unity-developer-lahore)
+* Fast loading pages
+* Semantic HTML
+
+---
+
+# 🚀 MVP Scope
+
+Build ONLY what is necessary:
+
+* Auth
+* Profile setup
+* Post internship
+* Search + filter
+* Apply system (basic)
+
+Do NOT over-engineer.
+
+---
+
+# 🧠 Mindset
+
+* Optimize for performance and scalability
+* Keep system simple but structured
+* Avoid unnecessary features
+* Write clean, maintainable code
+
+---
+
+Now:
+
+1. Propose folder structure
+2. Design database schema (MongoDB)
+3. Define API routes
+4. Start implementing step-by-step
