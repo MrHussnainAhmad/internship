@@ -113,6 +113,23 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      // 1. Allow Expo Go local development deep links
+      if (url.startsWith("exp://")) {
+        return url;
+      }
+      // 2. Allow the production React Native app deep links
+      if (url.startsWith("internshipapp://")) {
+        return url;
+      }
+      // 3. Keep the default NextAuth security for web
+      if (url.startsWith("/")) {
+        return `${baseUrl}${url}`;
+      } else if (new URL(url).origin === baseUrl) {
+        return url;
+      }
+      return baseUrl;
+    },
   },
 };
 
