@@ -12,7 +12,7 @@ const schema = z.object({
   location: z.string().trim().min(2).max(60),
   country: z.string().trim().min(2).max(60).default("Pakistan"),
   preferredType: z.enum(["paid", "unpaid", "learn_and_earn"]),
-  resumeUrl: z.string().url().optional().or(z.literal("")),
+  resumeUrl: z.string().trim().url().min(1),
 });
 
 export async function GET(request: Request) {

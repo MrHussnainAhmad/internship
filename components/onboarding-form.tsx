@@ -129,10 +129,21 @@ export function OnboardingForm() {
         }
 
         if (role === "student") {
+          if (!resumeFile && !student.resumeUrl) {
+            setMessage("Resume is required for student profile. Please upload a PDF (max 130KB).");
+            return;
+          }
+
           const uploadedResumeUrl = await uploadResume();
+          const resumeUrl = uploadedResumeUrl || student.resumeUrl;
+          if (!resumeUrl) {
+            setMessage("Resume is required for student profile. Please upload a PDF (max 130KB).");
+            return;
+          }
+
           const payload = {
             ...student,
-            resumeUrl: uploadedResumeUrl || student.resumeUrl,
+            resumeUrl,
             skills: student.skills
               .split(",")
               .map((value) => value.trim())
@@ -320,7 +331,7 @@ export function OnboardingForm() {
             />
           </label>
           <label className="flex flex-col gap-1 text-sm">
-            Resume (optional PDF, max 130KB)
+            Resume (required PDF, max 130KB)
             <input
               type="file"
               accept="application/pdf"
