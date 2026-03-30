@@ -55,7 +55,7 @@ export default async function PublicProfilePage(props: {
           </div>
           {isSelf ? (
             <Link
-              href="/onboarding"
+              href="/onboarding?edit=1"
               className="text-sm font-semibold text-blue-700 hover:text-blue-900"
             >
               Edit profile

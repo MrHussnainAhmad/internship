@@ -77,7 +77,45 @@ export async function PUT(request: Request) {
   const db = await getDb();
   const users = db.collection("users");
 
-  if (username) {
+  const existingUser = await users.findOne(
+    { _id: currentUser._id },
+    { projection: { _id: 1, username: 1, role: 1 } }
+  );
+  if (!existingUser) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  const existingRole =
+    existingUser.role === "student" || existingUser.role === "company"
+      ? existingUser.role
+      : null;
+  const existingUsername =
+    typeof existingUser.username === "string" && existingUser.username.trim()
+      ? existingUser.username.trim().toLowerCase()
+      : null;
+
+  if (existingRole && role !== existingRole) {
+    return NextResponse.json(
+      { error: "Role cannot be changed once set" },
+      { status: 409 }
+    );
+  }
+
+  if (existingUsername && username && username !== existingUsername) {
+    return NextResponse.json(
+      { error: "Username cannot be changed once set" },
+      { status: 409 }
+    );
+  }
+
+  if (!existingUsername && !username) {
+    return NextResponse.json(
+      { error: "Username is required for first profile setup" },
+      { status: 400 }
+    );
+  }
+
+  if (username && !existingUsername) {
     const existing = await users.findOne({
       username,
       _id: { $ne: currentUser._id },
@@ -91,13 +129,19 @@ export async function PUT(request: Request) {
     }
   }
 
-  const updateData: Record<string, any> = {
+  const updateData: {
+    name: string;
+    role: "student" | "company";
+    updatedAt: Date;
+    username?: string;
+    bio?: string;
+  } = {
     name,
-    role,
+    role: existingRole ?? role,
     updatedAt: new Date(),
   };
 
-  if (username !== undefined) updateData.username = username;
+  if (!existingUsername && username !== undefined) updateData.username = username;
   if (bio !== undefined) updateData.bio = bio;
 
   await users.updateOne(
