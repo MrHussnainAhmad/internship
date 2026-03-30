@@ -29,6 +29,8 @@ export function OnboardingForm() {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [role, setRole] = useState<Role>("student");
+  const [isUsernameLocked, setIsUsernameLocked] = useState(false);
+  const [isRoleLocked, setIsRoleLocked] = useState(false);
   const [student, setStudent] = useState(defaultStudent);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [company, setCompany] = useState(defaultCompany);
@@ -59,10 +61,16 @@ export function OnboardingForm() {
         if (!active) return;
 
         setName(profileJson.user?.name ?? "");
-        setUsername(profileJson.user?.username ?? "");
-        if (profileJson.user?.role === "company") setRole("company");
+        const existingUsername = String(profileJson.user?.username ?? "").trim();
+        const existingRole = profileJson.user?.role;
+        setUsername(existingUsername);
+        setIsUsernameLocked(Boolean(existingUsername));
+        if (existingRole === "student" || existingRole === "company") {
+          setRole(existingRole);
+          setIsRoleLocked(true);
+        }
 
-        if (profileJson.user?.role === "company") {
+        if (existingRole === "company") {
           const cRes = await fetch("/api/company");
           const cJson = await cRes.json();
           if (cJson.profile) {
@@ -191,9 +199,13 @@ export function OnboardingForm() {
           <input
             value={username}
             onChange={(event) => setUsername(event.target.value.toLowerCase())}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="rounded-md border border-slate-300 px-3 py-2 disabled:bg-slate-100 disabled:text-slate-500"
+            disabled={isUsernameLocked}
             required
           />
+          {isUsernameLocked ? (
+            <span className="text-xs text-slate-500">Username is locked after first setup.</span>
+          ) : null}
         </label>
       </div>
 
@@ -202,11 +214,15 @@ export function OnboardingForm() {
         <select
           value={role}
           onChange={(event) => setRole(event.target.value as Role)}
-          className="rounded-md border border-slate-300 px-3 py-2"
+          className="rounded-md border border-slate-300 px-3 py-2 disabled:bg-slate-100 disabled:text-slate-500"
+          disabled={isRoleLocked}
         >
           <option value="student">Student</option>
           <option value="company">Company</option>
         </select>
+        {isRoleLocked ? (
+          <span className="text-xs text-slate-500">Role is locked after first setup.</span>
+        ) : null}
       </label>
 
       {role === "student" ? (
@@ -304,7 +320,7 @@ export function OnboardingForm() {
             />
           </label>
           <label className="flex flex-col gap-1 text-sm">
-            Resume (optional PDF, max 300KB)
+            Resume (optional PDF, max 130KB)
             <input
               type="file"
               accept="application/pdf"
