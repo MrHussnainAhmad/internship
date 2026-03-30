@@ -10,6 +10,7 @@ type Applicant = {
   name: string;
   email: string;
   username: string;
+  resumeUrl: string;
   appliedAt: string;
   status: "pending" | "accepted" | "rejected";
 };
@@ -109,6 +110,21 @@ export function CompanyApplicantsChat({ internshipId, applicants }: Props) {
                 {applicant.appliedAt
                   ? new Date(applicant.appliedAt).toLocaleString()
                   : "Unknown"}
+              </p>
+              <p className="text-xs text-slate-500">
+                Resume:{" "}
+                {applicant.resumeUrl ? (
+                  <a
+                    href={applicant.resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-blue-700 hover:text-blue-900"
+                  >
+                    View resume
+                  </a>
+                ) : (
+                  <span className="text-rose-700">Not uploaded</span>
+                )}
               </p>
               <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
                 Status: {statuses[applicant.applicationId] ?? applicant.status}

@@ -27,10 +27,25 @@ export async function POST(
   const { slug } = await context.params;
   const internship = await db.collection("internships").findOne(
     { slug },
-    { projection: { _id: 1, title: 1, companyId: 1 } }
+    { projection: { _id: 1, title: 1, companyId: 1, resumeRequired: 1 } }
   );
   if (!internship) {
     return NextResponse.json({ error: "Internship not found" }, { status: 404 });
+  }
+
+  const studentProfile = await db
+    .collection("studentProfiles")
+    .findOne({ userId: user._id }, { projection: { resumeUrl: 1 } });
+  const resumeUrl =
+    typeof studentProfile?.resumeUrl === "string" && studentProfile.resumeUrl.trim()
+      ? studentProfile.resumeUrl.trim()
+      : "";
+
+  if (internship.resumeRequired === true && !resumeUrl) {
+    return NextResponse.json(
+      { error: "Resume required. Upload resume in your profile before applying." },
+      { status: 400 }
+    );
   }
 
   await ensureIndexes();
@@ -45,6 +60,7 @@ export async function POST(
     await db.collection("applications").insertOne({
       internshipId: internship._id,
       studentId: user._id,
+      resumeUrl,
       status: "pending",
       seenByCompany: false,
       createdAt: now,
@@ -97,6 +113,7 @@ export async function POST(
     { _id: existing._id },
     {
       $set: {
+        resumeUrl,
         status: "pending",
         seenByCompany: false,
         reappliedAt: now,

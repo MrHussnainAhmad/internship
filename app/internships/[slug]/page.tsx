@@ -11,6 +11,14 @@ import { getInternshipBySlug, getRelatedInternships } from "@/lib/internships";
 
 type Params = { slug: string };
 
+type OwnerApplicationDoc = {
+  _id: ObjectId;
+  studentId: ObjectId;
+  status?: unknown;
+  createdAt?: Date | string;
+  resumeUrl?: unknown;
+};
+
 export async function generateMetadata(props: {
   params: Promise<Params>;
 }): Promise<Metadata> {
@@ -65,6 +73,12 @@ export default async function InternshipDetailPage(props: {
         .sort({ createdAt: -1 })
         .limit(30)
         .toArray()
+        .then((rows) =>
+          rows.filter(
+            (row): row is OwnerApplicationDoc =>
+              row._id instanceof ObjectId && row.studentId instanceof ObjectId
+          )
+        )
     : [];
 
   if (isOwner) {
@@ -89,7 +103,20 @@ export default async function InternshipDetailPage(props: {
         .project({ _id: 1, name: 1, email: 1, username: 1 })
         .toArray()
     : [];
+  const applicantProfiles = applicantIds.length
+    ? await db
+        .collection("studentProfiles")
+        .find({ userId: { $in: applicantIds } })
+        .project({ userId: 1, resumeUrl: 1 })
+        .toArray()
+    : [];
   const applicantMap = new Map(applicants.map((user) => [user._id.toString(), user]));
+  const applicantResumeMap = new Map(
+    applicantProfiles.map((profile) => [
+      String(profile.userId),
+      typeof profile.resumeUrl === "string" ? profile.resumeUrl : "",
+    ])
+  );
   const normalizeStatus = (
     value: unknown
   ): "pending" | "accepted" | "rejected" => {
@@ -105,6 +132,10 @@ export default async function InternshipDetailPage(props: {
       name: String(user?.name ?? "Student"),
       email: String(user?.email ?? "No email"),
       username: String(user?.username ?? ""),
+      resumeUrl:
+        (typeof application.resumeUrl === "string" && application.resumeUrl) ||
+        applicantResumeMap.get(application.studentId.toString()) ||
+        "",
       status: normalizeStatus(application.status),
       appliedAt: application.createdAt
         ? new Date(application.createdAt).toISOString()

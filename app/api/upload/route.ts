@@ -11,7 +11,7 @@ cloudinary.config({
 });
 
 const MAX_IMAGE_SIZE = 3 * 1024 * 1024;
-const MAX_PDF_SIZE = 300 * 1024;
+const MAX_PDF_SIZE = 130 * 1024;
 
 function uploadBuffer({
   buffer,
@@ -67,13 +67,13 @@ export async function POST(request: Request) {
   const isPdf = kind === "pdf";
   if (isPdf && file.size > MAX_PDF_SIZE) {
     return NextResponse.json(
-      { error: "PDF must be <= 300KB" },
+      { error: "PDF must be <= 130KB" },
       { status: 400 }
     );
   }
   if (!isPdf && file.size > MAX_IMAGE_SIZE) {
     return NextResponse.json(
-      { error: "Image must be <= 1MB" },
+      { error: "Image must be <= 3MB" },
       { status: 400 }
     );
   }
