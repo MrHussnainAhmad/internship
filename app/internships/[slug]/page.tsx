@@ -315,7 +315,15 @@ export default async function InternshipDetailPage(props: {
                 </div>
               ) : null}
               {!canApply && isOwner ? (
-                <p className="text-sm text-slate-600">This is your published internship.</p>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm text-slate-600">This is your published internship.</p>
+                  <Link
+                    href={`/internships/${internship.slug}/edit`}
+                    className="inline-flex items-center rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    Edit internship
+                  </Link>
+                </div>
               ) : null}
               {!canApply && !isOwner && userRole === "company" ? (
                 <p className="text-sm text-slate-600">
