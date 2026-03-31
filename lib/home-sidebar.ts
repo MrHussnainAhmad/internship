@@ -196,12 +196,12 @@ export async function getHomeSidebarData(args: {
   );
 
   const opportunities: OpportunityItem[] = opportunityRows
-    .map((row) => {
+    .flatMap((row): OpportunityItem[] => {
       const requiredSkills = normalizeSkills(row.skillsRequired);
       const { matchedSkills, matchPercent } = calculateMatch(requiredSkills, viewerSkills);
-      if (matchedSkills.length === 0) return null;
-      return {
-        id: row._id.toString(),
+      if (matchedSkills.length === 0) return [];
+      return [{
+        id: row._id.toString() as string,
         slug: String(row.slug ?? ""),
         title: String(row.title ?? ""),
         companyName:
@@ -213,9 +213,8 @@ export async function getHomeSidebarData(args: {
         matchPercent,
         matchedSkills,
         createdAt: new Date(row.createdAt ?? Date.now()).toISOString(),
-      };
+      }];
     })
-    .filter((item): item is OpportunityItem => item !== null)
     .filter((item) => item.matchPercent >= 60)
     .sort((a, b) => (b.matchPercent !== a.matchPercent ? b.matchPercent - a.matchPercent : a.createdAt < b.createdAt ? 1 : -1))
     .slice(0, MAX_OPPORTUNITIES);
