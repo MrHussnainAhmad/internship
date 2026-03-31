@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f3f2ef;
-  --foreground: #111827;
+  --background: #f3f7ff;
+  --foreground: #142033;
+  --brand-600: #2563eb;
+  --brand-700: #1d4ed8;
+  --ink-900: #11203a;
+  --ink-700: #2a3b57;
+  --surface-50: #f5f9ff;
+  --surface-100: #ebf3ff;
+  --surface-200: #d7e6ff;
 }
 
 @theme inline {
@@ -17,7 +24,10 @@ html {
 }
 
 body {
-  background: linear-gradient(180deg, #f4f2ee 0%, #f1f0ec 100%);
+  background:
+    radial-gradient(1200px 500px at 0% -10%, #dbeafe 0%, rgba(219, 234, 254, 0) 60%),
+    radial-gradient(900px 420px at 100% -5%, #cffafe 0%, rgba(207, 250, 254, 0) 55%),
+    linear-gradient(180deg, #f6f9ff 0%, #eff6ff 45%, #f8fbff 100%);
   color: var(--foreground);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -25,6 +35,47 @@ body {
 }
 
 ::selection {
-  background: #dbe2ea;
-  color: #111827;
+  background: #bfdbfe;
+  color: #0f172a;
+}
+
+a {
+  color: var(--brand-700);
+}
+
+a:hover {
+  color: #1e40af;
+}
+
+/* Global color pass to make the UI less monochrome without rewriting every component. */
+.bg-slate-900 {
+  background-color: var(--brand-700) !important;
+}
+
+.hover\:bg-slate-800:hover {
+  background-color: #1e40af !important;
+}
+
+.text-slate-900 {
+  color: var(--ink-900) !important;
+}
+
+.text-slate-700 {
+  color: var(--ink-700) !important;
+}
+
+.bg-slate-50 {
+  background-color: var(--surface-50) !important;
+}
+
+.bg-slate-100 {
+  background-color: var(--surface-100) !important;
+}
+
+.border-slate-200 {
+  border-color: var(--surface-200) !important;
+}
+
+.border-slate-300 {
+  border-color: #c9dafc !important;
 }

@@ -122,14 +122,15 @@ export function ChatNavPopup({ initialUnread }: { initialUnread: number }) {
 
       {open && mounted
         ? createPortal(
-        <div className="fixed inset-x-4 bottom-4 top-auto z-[70] flex h-[min(64vh,560px)] w-auto flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.18)] sm:inset-x-auto sm:right-4 sm:w-[420px]">
-          <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+        <div className="fixed inset-x-4 bottom-4 top-auto z-[70] flex h-[min(64vh,560px)] w-auto flex-col overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.18)] sm:inset-x-auto sm:right-4 sm:w-[420px]">
+          <div className="h-1 w-full bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500" />
+          <div className="flex items-center justify-between border-b border-blue-100 bg-gradient-to-b from-blue-50/80 to-white px-4 py-3">
             <div className="flex min-w-0 items-center gap-2">
               {active ? (
                 <button
                   type="button"
                   onClick={backToList}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-blue-700 transition hover:bg-blue-100 hover:text-blue-900"
                   title="Back"
                   aria-label="Back"
                 >
@@ -142,7 +143,7 @@ export function ChatNavPopup({ initialUnread }: { initialUnread: number }) {
                 <p className="truncate text-sm font-semibold text-slate-900">
                   {active ? active.partner.name : "Messages"}
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-600">
                   {active ? active.internship.title : "Recent conversations"}
                 </p>
               </div>
@@ -152,20 +153,32 @@ export function ChatNavPopup({ initialUnread }: { initialUnread: number }) {
               {active ? (
                 <Link
                   href={`/chats?chatId=${active.id}`}
-                  title="Open in page"
-                  aria-label="Open in page"
-                  className="inline-flex h-8 items-center justify-center rounded-full border border-slate-300 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                  title="Open full chat"
+                  aria-label="Open full chat"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-blue-300 bg-blue-50 text-blue-700 transition hover:bg-blue-100"
                   onClick={() => setOpen(false)}
                 >
-                  Open
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M14 5h5v5" />
+                    <path d="M10 14 19 5" />
+                    <path d="M19 14v5h-5" />
+                    <path d="M5 10 14 19" />
+                  </svg>
+                  <span className="sr-only">Open full chat</span>
                 </Link>
               ) : null}
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="inline-flex h-8 items-center justify-center rounded-full border border-slate-300 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                title="Close chats"
+                aria-label="Close chats"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-100"
               >
-                Close
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="m18 6-12 12" />
+                  <path d="m6 6 12 12" />
+                </svg>
+                <span className="sr-only">Close chats</span>
               </button>
             </div>
           </div>
@@ -173,7 +186,7 @@ export function ChatNavPopup({ initialUnread }: { initialUnread: number }) {
           {error ? <p className="border-b border-slate-200 px-4 py-2 text-sm text-red-600">{error}</p> : null}
 
           {!active ? (
-            <div className="flex-1 overflow-auto p-2">
+            <div className="flex-1 overflow-auto bg-gradient-to-b from-slate-50/70 to-white p-2">
               {loading && items.length === 0 ? (
                 <p className="px-2 py-3 text-sm text-slate-600">Loading chats...</p>
               ) : null}
@@ -185,14 +198,20 @@ export function ChatNavPopup({ initialUnread }: { initialUnread: number }) {
                       key={item.id}
                       type="button"
                       onClick={() => openChat(item.id)}
-                      className="w-full rounded-xl px-3 py-3 text-left transition hover:bg-slate-50"
+                      className={`w-full rounded-xl border px-3 py-3 text-left transition ${
+                        item.id === activeChatId
+                          ? "border-blue-200 bg-blue-50 shadow-[0_1px_6px_rgba(37,99,235,0.12)]"
+                          : "border-transparent hover:border-slate-200 hover:bg-white"
+                      }`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-slate-900">{item.partner.name}</p>
                           <p className="mt-0.5 truncate text-xs text-slate-600">{item.internship.title}</p>
                         </div>
-                        <p className="shrink-0 text-[11px] font-medium text-slate-500">{timeAgo(item.updatedAt)}</p>
+                        <p className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+                          {timeAgo(item.updatedAt)}
+                        </p>
                       </div>
                     </button>
                   ))}
@@ -204,7 +223,7 @@ export function ChatNavPopup({ initialUnread }: { initialUnread: number }) {
               )}
             </div>
           ) : (
-            <div className="flex-1 overflow-auto bg-slate-50/40 p-3">
+            <div className="flex-1 overflow-auto bg-gradient-to-b from-blue-50/40 to-slate-50/50 p-3">
               <LiveChat chatId={active.id} title={`Chat with ${active.partner.name}`} />
             </div>
           )}

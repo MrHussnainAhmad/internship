@@ -580,7 +580,11 @@ export default async function InternshipDetailPage(props: {
             </div>
 
             <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5">
-              {canApply && !existingApplication ? <ApplyButton internshipSlug={internship.slug} /> : null}
+              {canApply && !existingApplication ? (
+                <div className="ml-auto">
+                  <ApplyButton internshipSlug={internship.slug} />
+                </div>
+              ) : null}
 
               {!canApply && isOwner ? (
                 <div className="flex flex-wrap items-center gap-3">

@@ -78,9 +78,15 @@ export function CreatePostBox() {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="h-11 w-full rounded-full border border-slate-300 bg-white px-4 text-left text-sm text-slate-500 transition hover:bg-slate-50"
+            title="Start post"
+            aria-label="Start post"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-50"
           >
-            Start a post
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z" />
+            </svg>
+            <span className="sr-only">Start a post</span>
           </button>
         </div>
       ) : (
@@ -117,16 +123,35 @@ export function CreatePostBox() {
                   setContent("");
                   setError("");
                 }}
-                className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                title="Cancel"
+                aria-label="Cancel"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-slate-700 transition hover:bg-slate-50"
               >
-                Cancel
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="m18 6-12 12" />
+                  <path d="m6 6 12 12" />
+                </svg>
+                <span className="sr-only">Cancel</span>
               </button>
               <button
                 type="submit"
                 disabled={busy}
-                className="inline-flex h-10 items-center justify-center rounded-full bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
+                title={busy ? "Posting" : "Post"}
+                aria-label={busy ? "Posting" : "Post"}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white transition hover:bg-slate-800 disabled:opacity-60"
               >
-                {busy ? "Posting..." : "Post"}
+                {busy ? (
+                  <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="9" className="opacity-30" />
+                    <path d="M21 12a9 9 0 0 0-9-9" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="m22 2-7 20-4-9-9-4Z" />
+                    <path d="M22 2 11 13" />
+                  </svg>
+                )}
+                <span className="sr-only">{busy ? "Posting..." : "Post"}</span>
               </button>
             </div>
           </div>

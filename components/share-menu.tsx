@@ -214,12 +214,13 @@ export function ShareMenu({
       <button
         type="button"
         onClick={() => setMenuOpen((value) => !value)}
-        className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-slate-100 px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-200"
+        className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-slate-100 px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-200"
       >
-        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
-          <path d="M12 16V3" />
-          <path d="m7 8 5-5 5 5" />
+        <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 12 16 4" />
+          <path d="M15 4h1a4 4 0 0 1 4 4v1" />
+          <path d="M16 12 8 20" />
+          <path d="M9 20H8a4 4 0 0 1-4-4v-1" />
         </svg>
         Share
       </button>

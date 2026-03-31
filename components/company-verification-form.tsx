@@ -203,9 +203,22 @@ export function CompanyVerificationForm() {
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex h-11 items-center justify-center rounded-full bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
+            title={loading ? "Sending OTP" : "Send OTP"}
+            aria-label={loading ? "Sending OTP" : "Send OTP"}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-900 text-white transition hover:bg-slate-800 disabled:opacity-60"
           >
-            {loading ? "Sending OTP..." : "Send OTP"}
+            {loading ? (
+              <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="9" className="opacity-30" />
+                <path d="M21 12a9 9 0 0 0-9-9" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="m22 2-7 20-4-9-9-4Z" />
+                <path d="M22 2 11 13" />
+              </svg>
+            )}
+            <span className="sr-only">{loading ? "Sending OTP..." : "Send OTP"}</span>
           </button>
         </div>
       </form>
@@ -237,9 +250,21 @@ export function CompanyVerificationForm() {
             <button
               type="submit"
               disabled={loading || !otpSent}
-              className="inline-flex h-11 items-center justify-center rounded-full bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
+              title={loading ? "Verifying" : "Verify company"}
+              aria-label={loading ? "Verifying" : "Verify company"}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-900 text-white transition hover:bg-slate-800 disabled:opacity-60"
             >
-              {loading ? "Verifying..." : "Verify company"}
+              {loading ? (
+                <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="9" className="opacity-30" />
+                  <path d="M21 12a9 9 0 0 0-9-9" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              )}
+              <span className="sr-only">{loading ? "Verifying..." : "Verify company"}</span>
             </button>
           </div>
 

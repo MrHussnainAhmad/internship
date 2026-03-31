@@ -83,9 +83,20 @@ export function StudentPostComposer({ onPosted }: Props) {
           title={busy ? "Posting" : "Post"}
           aria-label={busy ? "Posting" : "Post"}
           disabled={busy}
-          className="inline-flex h-10 items-center justify-center rounded-full bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white transition hover:bg-slate-800 disabled:opacity-60"
         >
-          {busy ? "Posting..." : "Post"}
+          {busy ? (
+            <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="9" className="opacity-30" />
+              <path d="M21 12a9 9 0 0 0-9-9" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="m22 2-7 20-4-9-9-4Z" />
+              <path d="M22 2 11 13" />
+            </svg>
+          )}
+          <span className="sr-only">{busy ? "Posting..." : "Post"}</span>
         </button>
       </div>
     </form>

@@ -299,9 +299,22 @@ export function PostCard({ item }: { item: PostItem }) {
             type="button"
             onClick={onFollow}
             disabled={followBusy}
-            className="inline-flex h-9 items-center justify-center rounded-full border border-slate-300 px-4 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+            title={followBusy ? "Following" : "Follow"}
+            aria-label={followBusy ? "Following" : "Follow"}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
           >
-            {followBusy ? "Following..." : "Follow"}
+            {followBusy ? (
+              <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="9" className="opacity-30" />
+                <path d="M21 12a9 9 0 0 0-9-9" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M5 12h14" />
+                <path d="M12 5v14" />
+              </svg>
+            )}
+            <span className="sr-only">{followBusy ? "Following..." : "Follow"}</span>
           </button>
         ) : null}
       </header>
@@ -319,21 +332,29 @@ export function PostCard({ item }: { item: PostItem }) {
         <button
           type="button"
           onClick={onLike}
-          className={`inline-flex h-10 items-center justify-center rounded-full px-3 text-sm font-medium transition ${
+          aria-label="Like"
+          className={`inline-flex h-10 items-center justify-center gap-2 rounded-full px-3 text-sm font-medium transition ${
             liked
               ? "bg-slate-900 text-white"
               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
           }`}
         >
-          Like
+          <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M7 10h3V6a3 3 0 0 1 6 0v4h2.3a1.8 1.8 0 0 1 1.8 2.2l-1 4.8A3.2 3.2 0 0 1 16 20H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z" />
+          </svg>
+          <span>Like</span>
         </button>
 
         <button
           type="button"
           onClick={onToggleComments}
-          className="inline-flex h-10 items-center justify-center rounded-full bg-slate-100 px-3 text-sm text-slate-700 transition hover:bg-slate-200"
+          aria-label="Comments"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-slate-100 px-3 text-sm text-slate-700 transition hover:bg-slate-200"
         >
-          Comment
+          <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 14a3 3 0 0 1-3 3H9l-5 3V7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7Z" />
+          </svg>
+          <span>Comment</span>
         </button>
 
         <ShareMenu
@@ -357,9 +378,18 @@ export function PostCard({ item }: { item: PostItem }) {
           <button
             type="button"
             onClick={onToggleComments}
-            className="text-xs font-semibold text-slate-700 transition hover:text-slate-900"
+            aria-label="View comments"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
           >
-            View comments
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M8 6h13" />
+              <path d="M8 12h13" />
+              <path d="M8 18h13" />
+              <path d="M3 6h.01" />
+              <path d="M3 12h.01" />
+              <path d="M3 18h.01" />
+            </svg>
+            <span className="sr-only">View comments</span>
           </button>
         </section>
       ) : null}
@@ -376,9 +406,14 @@ export function PostCard({ item }: { item: PostItem }) {
             <button
               type="submit"
               disabled={busy || !commentDraft.trim()}
-              className="inline-flex h-11 items-center justify-center rounded-full bg-slate-900 px-4 text-sm font-semibold text-white disabled:opacity-60"
+              aria-label="Post comment"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-900 text-white disabled:opacity-60"
             >
-              Post
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="m22 2-7 20-4-9-9-4Z" />
+                <path d="M22 2 11 13" />
+              </svg>
+              <span className="sr-only">Post</span>
             </button>
           </form>
 
@@ -407,9 +442,14 @@ export function PostCard({ item }: { item: PostItem }) {
                     setReplyTo(comment.id);
                     setReplyDraft("");
                   }}
-                  className="mt-2 text-xs font-semibold text-slate-700 transition hover:text-slate-900"
+                  aria-label="Reply"
+                  className="mt-2 inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
                 >
-                  Reply
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="m9 17-5-5 5-5" />
+                    <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
+                  </svg>
+                  <span className="sr-only">Reply</span>
                 </button>
 
                 {replyTo === comment.id ? (
@@ -423,9 +463,14 @@ export function PostCard({ item }: { item: PostItem }) {
                     <button
                       type="submit"
                       disabled={busy || !replyDraft.trim()}
-                      className="inline-flex h-10 items-center justify-center rounded-full bg-slate-900 px-4 text-sm font-semibold text-white disabled:opacity-60"
+                      aria-label="Post reply"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white disabled:opacity-60"
                     >
-                      Post
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="m22 2-7 20-4-9-9-4Z" />
+                        <path d="M22 2 11 13" />
+                      </svg>
+                      <span className="sr-only">Post</span>
                     </button>
                   </form>
                 ) : null}

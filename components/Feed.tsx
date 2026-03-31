@@ -267,9 +267,22 @@ export function Feed({ initialItems, initialHasMore, initialPage, viewerRole }: 
               type="button"
               onClick={loadMore}
               disabled={loading}
-              className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+              title={loading ? "Loading" : "Load more"}
+              aria-label={loading ? "Loading" : "Load more"}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
             >
-              {loading ? "Loading..." : "Load more"}
+              {loading ? (
+                <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="9" className="opacity-30" />
+                  <path d="M21 12a9 9 0 0 0-9-9" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 5v14" />
+                  <path d="m19 12-7 7-7-7" />
+                </svg>
+              )}
+              <span className="sr-only">{loading ? "Loading..." : "Load more"}</span>
             </button>
           </div>
         ) : null}
@@ -366,9 +379,22 @@ export function Feed({ initialItems, initialHasMore, initialPage, viewerRole }: 
             type="button"
             onClick={loadMore}
             disabled={loading}
-            className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+            title={loading ? "Loading" : "Load more"}
+            aria-label={loading ? "Loading" : "Load more"}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
           >
-            {loading ? "Loading..." : "Load more"}
+            {loading ? (
+              <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="9" className="opacity-30" />
+                <path d="M21 12a9 9 0 0 0-9-9" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 5v14" />
+                <path d="m19 12-7 7-7-7" />
+              </svg>
+            )}
+            <span className="sr-only">{loading ? "Loading..." : "Load more"}</span>
           </button>
         </div>
       ) : null}
