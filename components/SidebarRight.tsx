@@ -76,53 +76,59 @@ export function SidebarRight({
   return (
     <aside className="space-y-4 xl:sticky xl:top-20 xl:self-start">
       {showPostInternship ? (
-        <section className="px-1 py-2">
+        <section className="px-1 py-1">
           <Link
             href="/internships/new"
-            className="inline-flex w-full items-center justify-center rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800"
+            className="inline-flex h-11 w-full items-center justify-center rounded-full bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
             Post new internship
           </Link>
         </section>
       ) : null}
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
         <h2 className="text-sm font-semibold text-slate-900">Opportunities for you</h2>
+
         {opportunities.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-600">No high-match opportunities yet.</p>
+          <p className="mt-4 text-sm text-slate-600">No high-match opportunities yet.</p>
         ) : (
-          <div className="mt-3 space-y-3">
+          <div className="mt-4 space-y-3">
             {opportunities.map((item) => (
-              <article key={item.id} className="rounded-lg border border-slate-200 p-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
+              <article key={item.id} className="rounded-2xl border border-slate-200 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
                     <Link
                       href={`/internships/${item.slug}`}
-                      className="text-sm font-semibold text-slate-900 hover:text-blue-700"
+                      className="text-sm font-semibold text-slate-900 transition hover:text-slate-700"
                     >
                       {item.title}
                     </Link>
-                    <div className="flex items-center gap-1">
+
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5">
                       <p className="text-xs text-slate-600">{item.companyName}</p>
                       {item.companyVerified ? <VerifiedBadge trustedLabel={false} /> : null}
                     </div>
                   </div>
-                  <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">
+
+                  <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
                     {item.matchPercent}%
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-slate-600">
+
+                <p className="mt-2 text-xs leading-5 text-slate-600">
                   {item.location}, {item.country}
-                  {item.isRemote ? " • Remote" : ""}
-                  {` • ${timeAgo(item.createdAt)}`}
+                  {item.isRemote ? " · Remote" : ""}
+                  {` · ${timeAgo(item.createdAt)}`}
                 </p>
-                <p className="mt-1 text-xs text-slate-700">
+
+                <p className="mt-2 text-xs text-slate-700">
                   Matched: {item.matchedSkills.slice(0, 3).join(", ")}
                 </p>
-                <div className="mt-2 flex items-center gap-2">
+
+                <div className="mt-3 flex flex-wrap items-center gap-2">
                   <Link
                     href={`/internships/${item.slug}`}
-                    className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                    className="inline-flex h-9 items-center justify-center rounded-full border border-slate-300 px-4 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                   >
                     View
                   </Link>
@@ -134,50 +140,53 @@ export function SidebarRight({
         )}
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
         <h2 className="text-sm font-semibold text-slate-900">People like you</h2>
+
         {peopleLikeYou.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-600">No similar profiles right now.</p>
+          <p className="mt-4 text-sm text-slate-600">No similar profiles right now.</p>
         ) : (
-          <div className="mt-3 space-y-3">
+          <div className="mt-4 space-y-4">
             {peopleLikeYou.map((item) => (
-              <div key={item.id} className="flex items-start justify-between gap-2">
-                <div className="flex items-start gap-2">
+              <div key={item.id} className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 items-start gap-3">
                   {item.image ? (
                     <Image
                       src={item.image}
                       alt={item.name}
-                      width={40}
-                      height={40}
-                      className="h-10 w-10 rounded-full border border-slate-200 object-cover"
+                      width={42}
+                      height={42}
+                      className="h-[42px] w-[42px] rounded-full border border-slate-200 object-cover"
                     />
                   ) : (
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-sm font-semibold text-slate-700">
+                    <span className="inline-flex h-[42px] w-[42px] items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-sm font-semibold text-slate-700">
                       {item.name ? item.name.charAt(0).toUpperCase() : "?"}
                     </span>
                   )}
-                  <div>
+
+                  <div className="min-w-0">
                     <Link
                       href={`/profiles/${item.username}`}
-                      className="text-sm font-semibold text-slate-900 hover:text-blue-700"
+                      className="truncate text-sm font-semibold text-slate-900 transition hover:text-slate-700"
                     >
                       {item.name}
                     </Link>
-                    <p className="text-xs text-slate-600">{item.headline || item.role}</p>
+                    <p className="truncate text-xs text-slate-600">{item.headline || item.role}</p>
                     {item.sharedSkills.length > 0 ? (
-                      <p className="text-xs text-blue-700">
+                      <p className="mt-1 text-xs text-slate-500">
                         Shared: {item.sharedSkills.join(", ")}
                       </p>
                     ) : null}
                   </div>
                 </div>
+
                 <button
                   type="button"
                   onClick={() => follow(item.id)}
                   disabled={busyId === item.id}
-                  className="rounded-full border border-blue-300 px-3 py-1 text-xs font-semibold text-blue-700 disabled:opacity-60"
+                  className="inline-flex h-9 items-center justify-center rounded-full border border-slate-300 px-4 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
                 >
-                  {busyId === item.id ? "..." : "Follow"}
+                  {busyId === item.id ? "Following..." : "Follow"}
                 </button>
               </div>
             ))}
@@ -187,4 +196,3 @@ export function SidebarRight({
     </aside>
   );
 }
-

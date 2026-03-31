@@ -104,67 +104,76 @@ export function NotificationsClient({
   };
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">Alerts</h2>
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
+      <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-4">
+        <div>
+          <h2 className="text-[20px] font-semibold tracking-[-0.02em] text-slate-900">Alerts</h2>
+          <p className="mt-1 text-sm text-slate-600">Unread alerts: {unreadCount}</p>
+        </div>
+
         <button
           type="button"
           onClick={markAllRead}
           disabled={busy || unreadCount === 0}
           title="Mark all notifications read"
           aria-label="Mark all notifications read"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-300 text-slate-700 disabled:opacity-60"
+          className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
         >
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M5 13l4 4L19 7" />
-            <path d="M5 7l4 4" />
-          </svg>
-          <span className="sr-only">Mark all read</span>
+          Mark all read
         </button>
       </div>
-      <p className="mt-1 text-sm text-slate-600">Unread alerts: {unreadCount}</p>
-      {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+
+      {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
+
       {items.length === 0 ? (
-        <p className="mt-4 text-sm text-slate-600">No alerts yet.</p>
+        <p className="mt-5 text-sm text-slate-600">No alerts yet.</p>
       ) : (
-        <div className="mt-4 space-y-3">
+        <div className="mt-5 space-y-3">
           {items.map((item) => (
             <article
               key={item.id}
-              className={`rounded-lg border p-4 ${
-                item.isRead ? "border-slate-200 bg-white" : "border-blue-200 bg-blue-50"
+              className={`rounded-2xl border p-4 transition ${
+                item.isRead
+                  ? "border-slate-200 bg-white"
+                  : "border-slate-300 bg-slate-50"
               }`}
             >
-              <p className="font-semibold text-slate-900">{item.title}</p>
-              <p className="mt-1 text-sm text-slate-700">{item.body}</p>
-              <div className="mt-2 flex items-center justify-between gap-2">
-                <p className="text-xs text-slate-500">
-                  {new Date(item.createdAt).toLocaleString()}
-                </p>
-                <div className="flex items-center gap-2">
-                  {!item.isRead ? (
-                    <button
-                      type="button"
-                      onClick={() => void markOneRead(item.id)}
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-300 text-slate-700"
-                      title="Mark read"
-                      aria-label="Mark read"
-                    >
-                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M5 13l4 4L19 7" />
-                      </svg>
-                    </button>
-                  ) : null}
-                  {item.link ? (
-                    <button
-                      type="button"
-                      onClick={() => openNotification(item)}
-                      className="text-xs font-semibold text-blue-700"
-                    >
-                      Open
-                    </button>
-                  ) : null}
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-900">{item.title}</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-700">{item.body}</p>
+                  <p className="mt-3 text-xs text-slate-500">
+                    {new Date(item.createdAt).toLocaleString()}
+                  </p>
                 </div>
+
+                {!item.isRead ? (
+                  <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-slate-900" />
+                ) : null}
+              </div>
+
+              <div className="mt-4 flex items-center justify-end gap-2">
+                {!item.isRead ? (
+                  <button
+                    type="button"
+                    onClick={() => void markOneRead(item.id)}
+                    className="inline-flex h-9 items-center justify-center rounded-full border border-slate-300 px-4 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                    title="Mark read"
+                    aria-label="Mark read"
+                  >
+                    Mark read
+                  </button>
+                ) : null}
+
+                {item.link ? (
+                  <button
+                    type="button"
+                    onClick={() => openNotification(item)}
+                    className="inline-flex h-9 items-center justify-center rounded-full bg-slate-900 px-4 text-xs font-semibold text-white transition hover:bg-slate-800"
+                  >
+                    Open
+                  </button>
+                ) : null}
               </div>
             </article>
           ))}

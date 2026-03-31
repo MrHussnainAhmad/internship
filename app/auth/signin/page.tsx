@@ -17,13 +17,21 @@ export default async function SignInPage() {
   }
 
   return (
-    <section className="mx-auto flex w-full max-w-md px-4 py-16">
-      <div className="w-full rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="mb-2 text-2xl font-semibold text-slate-900">Welcome back</h1>
-        <p className="mb-6 text-sm text-slate-600">
-          Sign in with Google to continue to your internship workspace.
-        </p>
-        <GoogleSignInButton />
+    <section className="mx-auto flex min-h-[calc(100vh-80px)] w-full max-w-md items-center px-4 py-12">
+      <div className="w-full rounded-2xl border border-slate-200 bg-white p-7 shadow-[0_16px_40px_rgba(15,23,42,0.08)]">
+        <div className="border-b border-slate-200 pb-5">
+          <h1 className="text-[28px] font-semibold tracking-[-0.03em] text-slate-900">
+            Welcome back
+          </h1>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Sign in with Google to continue to your internship workspace.
+          </p>
+        </div>
+
+        <div className="mt-6">
+          <GoogleSignInButton />
+        </div>
+
         {isDevAuthBypassEnabled ? <DevAuthBypassButtons /> : null}
       </div>
     </section>

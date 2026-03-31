@@ -82,12 +82,12 @@ export function ConnectButton({
         title={busy ? "Updating connection" : connected ? "Connected" : "Connect"}
         aria-label={busy ? "Updating connection" : connected ? "Connected" : "Connect"}
         disabled={busy}
-        className={`inline-flex items-center justify-center gap-1.5 rounded-md font-semibold transition disabled:opacity-60 ${
-          compact ? "h-8 px-2.5 text-xs" : "h-9 px-3 text-sm"
+        className={`inline-flex items-center justify-center gap-2 rounded-full font-semibold transition disabled:opacity-60 ${
+          compact ? "h-9 px-3 text-xs" : "h-10 px-4 text-sm"
         } ${
           connected
-            ? "border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-            : "bg-blue-700 text-white hover:bg-blue-800"
+            ? "border border-slate-300 bg-white text-slate-800 hover:bg-slate-50"
+            : "bg-slate-900 text-white hover:bg-slate-800"
         }`}
       >
         {busy ? (
@@ -109,11 +109,14 @@ export function ConnectButton({
           {busy ? "Updating connection" : connected ? "Connected" : "Connect"}
         </span>
       </button>
+
       {showCounts ? (
         <p className="text-xs text-slate-600">
-          Followers: {followersCount} | Following: {followingCount}
+          <span className="font-medium text-slate-900">{followersCount}</span> followers ·{" "}
+          <span className="font-medium text-slate-900">{followingCount}</span> following
         </p>
       ) : null}
+
       {error ? <p className="text-xs text-red-600">{error}</p> : null}
     </div>
   );

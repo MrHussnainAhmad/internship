@@ -38,9 +38,9 @@ function matchTag(percent: number): "Top Match" | "Medium" | "Low" {
 }
 
 function badgeClass(tag: "Top Match" | "Medium" | "Low") {
-  if (tag === "Top Match") return "bg-emerald-100 text-emerald-800";
-  if (tag === "Medium") return "bg-amber-100 text-amber-800";
-  return "bg-slate-100 text-slate-700";
+  if (tag === "Top Match") return "border-slate-300 bg-slate-900 text-white";
+  if (tag === "Medium") return "border-slate-300 bg-slate-100 text-slate-700";
+  return "border-slate-300 bg-white text-slate-600";
 }
 
 function daysSince(dateInput: unknown, nowTs: number) {
@@ -120,11 +120,11 @@ export default async function DashboardPage(props: {
 
     const rawApplications = internshipIds.length
       ? await db
-          .collection("applications")
-          .find({ internshipId: { $in: internshipIds } })
-          .project({ _id: 1, internshipId: 1, studentId: 1, status: 1, resumeUrl: 1, createdAt: 1 })
-          .sort({ createdAt: -1 })
-          .toArray()
+        .collection("applications")
+        .find({ internshipId: { $in: internshipIds } })
+        .project({ _id: 1, internshipId: 1, studentId: 1, status: 1, resumeUrl: 1, createdAt: 1 })
+        .sort({ createdAt: -1 })
+        .toArray()
       : [];
 
     const studentIds = rawApplications
@@ -133,17 +133,17 @@ export default async function DashboardPage(props: {
 
     const [studentProfiles, studentUsers] = studentIds.length
       ? await Promise.all([
-          db
-            .collection("studentProfiles")
-            .find({ userId: { $in: studentIds } })
-            .project({ userId: 1, skills: 1, resumeUrl: 1 })
-            .toArray(),
-          db
-            .collection("users")
-            .find({ _id: { $in: studentIds } })
-            .project({ _id: 1, name: 1, username: 1 })
-            .toArray(),
-        ])
+        db
+          .collection("studentProfiles")
+          .find({ userId: { $in: studentIds } })
+          .project({ userId: 1, skills: 1, resumeUrl: 1 })
+          .toArray(),
+        db
+          .collection("users")
+          .find({ _id: { $in: studentIds } })
+          .project({ _id: 1, name: 1, username: 1 })
+          .toArray(),
+      ])
       : [[], []];
 
     const internshipMap = new Map(postedInternships.map((item) => [item._id.toString(), item]));
@@ -260,50 +260,77 @@ export default async function DashboardPage(props: {
     }).length;
 
     return (
-      <section className="mx-auto w-full max-w-6xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-slate-900">Company dashboard</h1>
-        <p className="mt-1 text-sm text-slate-600">Decision board to review applicants and hire faster.</p>
+      <section className="mx-auto w-full max-w-6xl px-4 py-8 md:py-10">
+        <div>
+          <h1 className="text-[28px] font-semibold tracking-[-0.03em] text-slate-900">
+            Company dashboard
+          </h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Review applicants, monitor listing performance, and move faster on hiring decisions.
+          </p>
+        </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
             <p className="text-sm text-slate-500">Internships posted</p>
-            <p className="mt-1 text-3xl font-bold text-slate-900">{postedInternships.length}</p>
+            <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-slate-900">
+              {postedInternships.length}
+            </p>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
             <p className="text-sm text-slate-500">Total applicants</p>
-            <p className="mt-1 text-3xl font-bold text-slate-900">{totalApplications}</p>
+            <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-slate-900">
+              {totalApplications}
+            </p>
           </div>
-          <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-5 shadow-sm">
-            <p className="text-sm text-emerald-700">Top-match candidates (70%+)</p>
-            <p className="mt-1 text-3xl font-bold text-emerald-900">{totalHighMatch}</p>
+
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
+            <p className="text-sm text-slate-500">Top-match candidates</p>
+            <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-slate-900">
+              {totalHighMatch}
+            </p>
           </div>
         </div>
 
-        <section className="mt-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <h2 className="text-lg font-semibold text-slate-900">Internship pipeline</h2>
+
             <div className="flex flex-wrap gap-2 text-xs font-semibold">
               <Link
                 href="/dashboard?applicants=all"
-                className={`rounded-full border px-3 py-1 ${applicantFilter === "all" ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-300 text-slate-700"}`}
+                className={`inline-flex h-9 items-center justify-center rounded-full border px-4 transition ${applicantFilter === "all"
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : "border-slate-300 text-slate-700 hover:bg-slate-50"
+                  }`}
               >
                 All
               </Link>
               <Link
                 href="/dashboard?applicants=top_match"
-                className={`rounded-full border px-3 py-1 ${applicantFilter === "top_match" ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-300 text-slate-700"}`}
+                className={`inline-flex h-9 items-center justify-center rounded-full border px-4 transition ${applicantFilter === "top_match"
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : "border-slate-300 text-slate-700 hover:bg-slate-50"
+                  }`}
               >
-                Top match (70%+)
+                Top match
               </Link>
               <Link
                 href="/dashboard?applicants=has_resume"
-                className={`rounded-full border px-3 py-1 ${applicantFilter === "has_resume" ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-300 text-slate-700"}`}
+                className={`inline-flex h-9 items-center justify-center rounded-full border px-4 transition ${applicantFilter === "has_resume"
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : "border-slate-300 text-slate-700 hover:bg-slate-50"
+                  }`}
               >
                 Has resume
               </Link>
               <Link
                 href="/dashboard?applicants=recent"
-                className={`rounded-full border px-3 py-1 ${applicantFilter === "recent" ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-300 text-slate-700"}`}
+                className={`inline-flex h-9 items-center justify-center rounded-full border px-4 transition ${applicantFilter === "recent"
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : "border-slate-300 text-slate-700 hover:bg-slate-50"
+                  }`}
               >
                 Recent
               </Link>
@@ -311,58 +338,77 @@ export default async function DashboardPage(props: {
           </div>
 
           {postedInternships.length === 0 ? (
-            <p className="mt-4 text-sm text-slate-600">No listings yet. Post your first internship to start hiring.</p>
+            <p className="mt-5 text-sm text-slate-600">
+              No listings yet. Post your first internship to start hiring.
+            </p>
           ) : (
-            <div className="mt-4 space-y-4">
+            <div className="mt-5 space-y-4">
               {postedInternships.map((internship) => {
                 const row = listingRows.find((item) => item.internshipId === internship._id.toString());
                 const applicants = row?.recentApplicants ?? [];
+
                 return (
-                  <article key={internship._id.toString()} className="rounded-lg border border-slate-200 p-4">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
+                  <article
+                    key={internship._id.toString()}
+                    className="rounded-2xl border border-slate-200 p-5"
+                  >
+                    <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                       <div>
-                        <h3 className="font-semibold text-slate-900">{String(internship.title ?? "Internship")}</h3>
+                        <h3 className="text-base font-semibold text-slate-900">
+                          {String(internship.title ?? "Internship")}
+                        </h3>
                         <p className="mt-1 text-sm text-slate-600">
-                          Total applicants: <span className="font-semibold text-slate-900">{row?.totalApplicants ?? 0}</span>
-                          {" • "}High match: <span className="font-semibold text-emerald-700">{row?.highMatchCandidates ?? 0}</span>
-                          {" • "}Resume uploaded: <span className="font-semibold text-slate-900">{row?.resumeUploaded ?? 0}</span>
+                          Total applicants:{" "}
+                          <span className="font-semibold text-slate-900">{row?.totalApplicants ?? 0}</span>
+                          {" · "}High match:{" "}
+                          <span className="font-semibold text-slate-900">{row?.highMatchCandidates ?? 0}</span>
+                          {" · "}Resume uploaded:{" "}
+                          <span className="font-semibold text-slate-900">{row?.resumeUploaded ?? 0}</span>
                         </p>
                       </div>
+
                       <Link
                         href={`/internships/${String(internship.slug ?? "")}`}
-                        className="text-sm font-semibold text-blue-700 hover:text-blue-900"
+                        className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                       >
                         View listing
                       </Link>
                     </div>
 
                     {applicants.length > 0 ? (
-                      <div className="mt-3 space-y-2">
+                      <div className="mt-4 space-y-2">
                         {applicants.map((app) => (
-                          <div key={app.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-slate-50 px-3 py-2">
+                          <div
+                            key={app.id}
+                            className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                          >
                             <div>
                               <p className="text-sm font-semibold text-slate-900">{app.studentName}</p>
                               <p className="text-xs text-slate-600">
                                 Match {app.matchPercent}%
-                                {app.studentUsername ? ` • @${app.studentUsername}` : ""}
-                                {` • Applied ${daysSince(app.appliedAt, nowTs)}d ago`}
+                                {app.studentUsername ? ` · @${app.studentUsername}` : ""}
+                                {` · Applied ${daysSince(app.appliedAt, nowTs)}d ago`}
                               </p>
                             </div>
+
                             <div className="flex items-center gap-2">
-                              <span className={`rounded-full px-2 py-1 text-xs font-semibold ${badgeClass(app.tag)}`}>
+                              <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${badgeClass(app.tag)}`}>
                                 {app.tag}
                               </span>
-                              {app.hasResume ? (
-                                <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700">Resume</span>
-                              ) : (
-                                <span className="rounded-full bg-rose-100 px-2 py-1 text-xs font-semibold text-rose-700">No resume</span>
-                              )}
+                              <span
+                                className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${app.hasResume
+                                    ? "border-slate-300 bg-white text-slate-700"
+                                    : "border-slate-300 bg-white text-slate-500"
+                                  }`}
+                              >
+                                {app.hasResume ? "Resume" : "No resume"}
+                              </span>
                             </div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <p className="mt-3 text-sm text-slate-500">No applicants in this filter.</p>
+                      <p className="mt-4 text-sm text-slate-500">No applicants in this filter.</p>
                     )}
                   </article>
                 );
@@ -390,10 +436,10 @@ export default async function DashboardPage(props: {
 
   const internships = internshipIds.length
     ? await db
-        .collection("internships")
-        .find({ _id: { $in: internshipIds } })
-        .project({ _id: 1, title: 1, slug: 1, companyId: 1 })
-        .toArray()
+      .collection("internships")
+      .find({ _id: { $in: internshipIds } })
+      .project({ _id: 1, title: 1, slug: 1, companyId: 1 })
+      .toArray()
     : [];
 
   const internshipMap = new Map(internships.map((item) => [item._id.toString(), item]));
@@ -451,64 +497,89 @@ export default async function DashboardPage(props: {
   if (smartActions.length === 0) smartActions.push("Keep momentum: apply to 2 new internships this week.");
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-slate-900">Student dashboard</h1>
-      <p className="mt-1 text-sm text-slate-600">Decision board for applications, profile quality, and next moves.</p>
+    <section className="mx-auto w-full max-w-6xl px-4 py-8 md:py-10">
+      <div>
+        <h1 className="text-[28px] font-semibold tracking-[-0.03em] text-slate-900">
+          Student dashboard
+        </h1>
+        <p className="mt-1 text-sm text-slate-600">
+          Track applications, improve profile quality, and focus on next steps.
+        </p>
+      </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
           <p className="text-sm text-slate-500">Total applications</p>
-          <p className="mt-1 text-3xl font-bold text-slate-900">{statusCounts.applied}</p>
+          <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-slate-900">
+            {statusCounts.applied}
+          </p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
           <p className="text-sm text-slate-500">Response rate</p>
-          <p className="mt-1 text-3xl font-bold text-slate-900">{responseRate}%</p>
+          <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-slate-900">
+            {responseRate}%
+          </p>
         </div>
-        <div className="rounded-xl border border-amber-300 bg-amber-50 p-5 shadow-sm">
-          <p className="text-sm text-amber-700">Pending</p>
-          <p className="mt-1 text-3xl font-bold text-amber-900">{statusCounts.pending}</p>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
+          <p className="text-sm text-slate-500">Pending</p>
+          <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-slate-900">
+            {statusCounts.pending}
+          </p>
         </div>
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
-          <h2 className="text-lg font-semibold text-slate-900">Application progress tracker</h2>
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)] lg:col-span-2">
+          <h2 className="text-lg font-semibold text-slate-900">Application progress</h2>
+
           <div className="mt-4 grid gap-3 sm:grid-cols-5">
-            <div className="rounded-lg border border-slate-200 p-3 text-center">
-              <p className="text-xs uppercase text-slate-500">Applied</p>
-              <p className="text-2xl font-bold text-slate-900">{statusCounts.applied}</p>
+            <div className="rounded-2xl border border-slate-200 p-4 text-center">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">Applied</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">{statusCounts.applied}</p>
             </div>
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-center">
-              <p className="text-xs uppercase text-blue-700">Viewed</p>
-              <p className="text-2xl font-bold text-blue-900">{statusCounts.viewed}</p>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">Viewed</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">{statusCounts.viewed}</p>
             </div>
-            <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-3 text-center">
-              <p className="text-xs uppercase text-indigo-700">Interview</p>
-              <p className="text-2xl font-bold text-indigo-900">{statusCounts.interview}</p>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">Interview</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">{statusCounts.interview}</p>
             </div>
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-center">
-              <p className="text-xs uppercase text-emerald-700">Accepted</p>
-              <p className="text-2xl font-bold text-emerald-900">{statusCounts.accepted}</p>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">Accepted</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">{statusCounts.accepted}</p>
             </div>
-            <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-center">
-              <p className="text-xs uppercase text-rose-700">Rejected</p>
-              <p className="text-2xl font-bold text-rose-900">{statusCounts.rejected}</p>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">Rejected</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">{statusCounts.rejected}</p>
             </div>
           </div>
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
           <h2 className="text-lg font-semibold text-slate-900">Smart next action</h2>
-          <ul className="mt-3 space-y-2 text-sm text-slate-700">
+
+          <ul className="mt-4 space-y-2 text-sm text-slate-700">
             {smartActions.map((action) => (
-              <li key={action} className="rounded-md bg-slate-50 px-3 py-2">{action}</li>
+              <li key={action} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                {action}
+              </li>
             ))}
           </ul>
-          <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
-            <Link href="/onboarding?edit=1" className="rounded-full border border-slate-300 px-3 py-1 text-slate-700">
+
+          <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+            <Link
+              href="/onboarding?edit=1"
+              className="inline-flex h-9 items-center justify-center rounded-full border border-slate-300 px-4 text-slate-700 transition hover:bg-slate-50"
+            >
               Improve profile
             </Link>
-            <Link href="/internships" className="rounded-full border border-blue-300 bg-blue-50 px-3 py-1 text-blue-700">
+            <Link
+              href="/internships"
+              className="inline-flex h-9 items-center justify-center rounded-full bg-slate-900 px-4 text-white transition hover:bg-slate-800"
+            >
               Apply more
             </Link>
           </div>
@@ -516,66 +587,77 @@ export default async function DashboardPage(props: {
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Profile strength meter</h2>
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
+          <h2 className="text-lg font-semibold text-slate-900">Profile strength</h2>
           <div className="mt-4">
             <div className="h-2 rounded-full bg-slate-200">
-              <div className="h-2 rounded-full bg-blue-700" style={{ width: `${completion}%` }} />
+              <div className="h-2 rounded-full bg-slate-900" style={{ width: `${completion}%` }} />
             </div>
-            <p className="mt-2 text-sm font-semibold text-slate-900">{completion}% complete</p>
-            <p className="mt-1 text-xs text-slate-600">Based on skills, resume, projects, and profile completion.</p>
+            <p className="mt-3 text-sm font-semibold text-slate-900">{completion}% complete</p>
+            <p className="mt-1 text-xs text-slate-600">
+              Based on skills, resume, projects, and profile completion.
+            </p>
           </div>
+
           <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-700">
-            <div className="rounded-md bg-slate-50 px-3 py-2">Skills: {studentSkills.length}</div>
-            <div className="rounded-md bg-slate-50 px-3 py-2">Projects: {projectsCount}</div>
-            <div className="rounded-md bg-slate-50 px-3 py-2">Resume: {String(studentProfile?.resumeUrl ?? "").trim() ? "Yes" : "No"}</div>
-            <div className="rounded-md bg-slate-50 px-3 py-2">Links: {linksCount}</div>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">Skills: {studentSkills.length}</div>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">Projects: {projectsCount}</div>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
+              Resume: {String(studentProfile?.resumeUrl ?? "").trim() ? "Yes" : "No"}
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">Links: {linksCount}</div>
           </div>
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Resume score (rule-based)</h2>
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
+          <h2 className="text-lg font-semibold text-slate-900">Resume score</h2>
           <div className="mt-4">
             <div className="h-2 rounded-full bg-slate-200">
-              <div className="h-2 rounded-full bg-emerald-600" style={{ width: `${resumeRuleScore}%` }} />
+              <div className="h-2 rounded-full bg-slate-900" style={{ width: `${resumeRuleScore}%` }} />
             </div>
-            <p className="mt-2 text-sm font-semibold text-slate-900">{resumeRuleScore}/100</p>
-            <p className="mt-1 text-xs text-slate-600">Rules: education 25, skills 25, projects 30, links 20.</p>
+            <p className="mt-3 text-sm font-semibold text-slate-900">{resumeRuleScore}/100</p>
+            <p className="mt-1 text-xs text-slate-600">
+              Rules: education 25, skills 25, projects 30, links 20.
+            </p>
           </div>
         </section>
       </div>
 
-      <section className="mt-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
         <h2 className="text-lg font-semibold text-slate-900">Follow-up system</h2>
+
         {stalePending.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-600">
+          <p className="mt-4 text-sm text-slate-600">
             No follow-ups due. A follow-up appears when an application is pending for {FOLLOW_UP_AFTER_DAYS}+ days.
           </p>
         ) : (
-          <div className="mt-3 space-y-3">
+          <div className="mt-4 space-y-3">
             {stalePending.map((application) => {
               const internship = internshipMap.get(String(application.internshipId ?? ""));
               return (
-                <article key={String(application._id)} className="rounded-lg border border-slate-200 p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
+                <article key={String(application._id)} className="rounded-2xl border border-slate-200 p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">{String(internship?.title ?? "Internship")}</p>
+                      <p className="text-sm font-semibold text-slate-900">
+                        {String(internship?.title ?? "Internship")}
+                      </p>
                       <p className="text-xs text-slate-600">
                         Pending for {daysSince(application.updatedAt ?? application.createdAt ?? now, nowTs)} days
                       </p>
                     </div>
+
                     <div className="flex items-center gap-2">
                       {internship?.slug ? (
                         <Link
                           href={`/internships/${String(internship.slug)}`}
-                          className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700"
+                          className="inline-flex h-9 items-center justify-center rounded-full border border-slate-300 px-4 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                         >
                           View details
                         </Link>
                       ) : null}
                       <Link
                         href="/chats"
-                        className="rounded-md bg-blue-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-800"
+                        className="inline-flex h-9 items-center justify-center rounded-full bg-slate-900 px-4 text-xs font-semibold text-white transition hover:bg-slate-800"
                       >
                         Follow up now
                       </Link>
@@ -590,7 +672,3 @@ export default async function DashboardPage(props: {
     </section>
   );
 }
-
-
-
-

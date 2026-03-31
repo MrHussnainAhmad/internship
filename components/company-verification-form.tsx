@@ -20,7 +20,9 @@ export function CompanyVerificationForm() {
   const domainEmailReady = domainEmail.trim().length > 0;
 
   const inputClass = (field: string) =>
-    `rounded-md border px-3 py-2 ${errors[field] ? "border-rose-400" : "border-slate-300"}`;
+    `h-11 w-full rounded-xl border bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition focus:outline-none focus:ring-0 ${
+      errors[field as keyof typeof errors] ? "border-rose-400" : "border-slate-300 focus:border-slate-400"
+    }`;
 
   async function startVerification(event: FormEvent) {
     event.preventDefault();
@@ -102,89 +104,152 @@ export function CompanyVerificationForm() {
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h1 className="text-xl font-semibold text-slate-900">Get Verified</h1>
-      <p className="mt-1 text-sm text-slate-600">
-        Company verification requires all company links, domain email OTP, and at least one proof link.
-      </p>
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.06)] sm:p-7">
+      <div className="border-b border-slate-200 pb-4">
+        <h1 className="text-[22px] font-semibold tracking-[-0.02em] text-slate-900">Company verification</h1>
+        <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
+          Add your company presence, confirm a domain email, and share at least one proof link.
+        </p>
+      </div>
 
-      <form onSubmit={startVerification} className="mt-5 space-y-4">
-        <label className="flex flex-col gap-1 text-sm">
-          Website URL (required)
-          <input value={websiteUrl} onChange={(e) => setWebsiteUrl(e.target.value)} className={inputClass("websiteUrl")} placeholder="https://example.com" required />
-          {errors.websiteUrl ? <span className="text-xs text-rose-600">{errors.websiteUrl}</span> : null}
+      <form onSubmit={startVerification} className="mt-6 space-y-5">
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-medium text-slate-800">Website URL</span>
+          <input
+            value={websiteUrl}
+            onChange={(e) => setWebsiteUrl(e.target.value)}
+            className={inputClass("websiteUrl")}
+            placeholder="https://example.com"
+            required
+          />
+          {errors.websiteUrl ? <span className="mt-1 block text-xs text-rose-600">{errors.websiteUrl}</span> : null}
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
-          LinkedIn URL (required)
-          <input value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} className={inputClass("linkedinUrl")} placeholder="https://linkedin.com/company/..." required />
-          {errors.linkedinUrl ? <span className="text-xs text-rose-600">{errors.linkedinUrl}</span> : null}
-        </label>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-slate-800">LinkedIn URL</span>
+            <input
+              value={linkedinUrl}
+              onChange={(e) => setLinkedinUrl(e.target.value)}
+              className={inputClass("linkedinUrl")}
+              placeholder="https://linkedin.com/company/..."
+              required
+            />
+            {errors.linkedinUrl ? <span className="mt-1 block text-xs text-rose-600">{errors.linkedinUrl}</span> : null}
+          </label>
 
-        <label className="flex flex-col gap-1 text-sm">
-          Twitter URL (required)
-          <input value={twitterUrl} onChange={(e) => setTwitterUrl(e.target.value)} className={inputClass("twitterUrl")} placeholder="https://x.com/..." required />
-          {errors.twitterUrl ? <span className="text-xs text-rose-600">{errors.twitterUrl}</span> : null}
-        </label>
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-slate-800">Twitter / X URL</span>
+            <input
+              value={twitterUrl}
+              onChange={(e) => setTwitterUrl(e.target.value)}
+              className={inputClass("twitterUrl")}
+              placeholder="https://x.com/..."
+              required
+            />
+            {errors.twitterUrl ? <span className="mt-1 block text-xs text-rose-600">{errors.twitterUrl}</span> : null}
+          </label>
 
-        <label className="flex flex-col gap-1 text-sm">
-          Instagram URL (required)
-          <input value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} className={inputClass("instagramUrl")} placeholder="https://instagram.com/..." required />
-          {errors.instagramUrl ? <span className="text-xs text-rose-600">{errors.instagramUrl}</span> : null}
-        </label>
+          <label className="block sm:col-span-2">
+            <span className="mb-1.5 block text-sm font-medium text-slate-800">Instagram URL</span>
+            <input
+              value={instagramUrl}
+              onChange={(e) => setInstagramUrl(e.target.value)}
+              className={inputClass("instagramUrl")}
+              placeholder="https://instagram.com/..."
+              required
+            />
+            {errors.instagramUrl ? <span className="mt-1 block text-xs text-rose-600">{errors.instagramUrl}</span> : null}
+          </label>
+        </div>
 
         {websiteReady ? (
-          <label className="flex flex-col gap-1 text-sm">
-            Domain email (required)
-            <input value={domainEmail} onChange={(e) => setDomainEmail(e.target.value)} className={inputClass("domainEmail")} placeholder="hr@yourdomain.com" required />
-            <span className="text-xs text-slate-500">Public domains like gmail/hotmail/yahoo are blocked.</span>
-            {errors.domainEmail ? <span className="text-xs text-rose-600">{errors.domainEmail}</span> : null}
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-slate-800">Domain email</span>
+            <input
+              value={domainEmail}
+              onChange={(e) => setDomainEmail(e.target.value)}
+              className={inputClass("domainEmail")}
+              placeholder="hr@yourdomain.com"
+              required
+            />
+            <span className="mt-1 block text-xs text-slate-500">
+              Public domains like gmail, yahoo, and hotmail are not allowed.
+            </span>
+            {errors.domainEmail ? <span className="mt-1 block text-xs text-rose-600">{errors.domainEmail}</span> : null}
           </label>
         ) : (
-          <p className="text-xs text-slate-500">Enter website URL first to continue with domain email verification.</p>
+          <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+            Enter your website URL first to continue with domain email verification.
+          </div>
         )}
 
-        <label className="flex flex-col gap-1 text-sm">
-          Proof of work links (required, one per line)
-          <textarea value={proofLinksInput} onChange={(e) => setProofLinksInput(e.target.value)} className={inputClass("proofLinks") + " min-h-28"} placeholder={"https://play.google.com/store/apps/details?id=...\nhttps://github.com/org/project"} required />
-          <span className="text-xs text-slate-500">At least one link: Play Store / itch.io / GitHub / project site.</span>
-          {errors.proofLinks ? <span className="text-xs text-rose-600">{errors.proofLinks}</span> : null}
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-medium text-slate-800">Proof of work links</span>
+          <textarea
+            value={proofLinksInput}
+            onChange={(e) => setProofLinksInput(e.target.value)}
+            className={`${inputClass("proofLinks")} min-h-32 py-3`}
+            placeholder={"https://play.google.com/store/apps/details?id=...\nhttps://github.com/org/project"}
+            required
+          />
+          <span className="mt-1 block text-xs text-slate-500">
+            Add one link per line. Example: Play Store, GitHub, project site, or itch.io.
+          </span>
+          {errors.proofLinks ? <span className="mt-1 block text-xs text-rose-600">{errors.proofLinks}</span> : null}
         </label>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
-        >
-          {loading ? "Sending OTP..." : "Send OTP"}
-        </button>
+        <div className="flex items-center justify-end">
+          <button
+            type="submit"
+            disabled={loading}
+            className="inline-flex h-11 items-center justify-center rounded-full bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
+          >
+            {loading ? "Sending OTP..." : "Send OTP"}
+          </button>
+        </div>
       </form>
 
       {domainEmailReady ? (
-        <form onSubmit={confirmVerification} className="mt-6 space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
-          <p className="text-sm font-semibold text-slate-900">Domain email verification</p>
-          <p className="text-xs text-slate-600">
-            1) Click <span className="font-semibold">Send OTP</span> above.
-            2) Enter OTP from {domainEmail.trim() || "your domain email"}.
-          </p>
-          <label className="flex flex-col gap-1 text-sm">
-            Enter OTP
-            <input value={otp} onChange={(e) => setOtp(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2" maxLength={4} required />
-          </label>
-          <button
-            type="submit"
-            disabled={loading || !otpSent}
-            className="rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
-          >
-            {loading ? "Verifying..." : "Verify Company"}
-          </button>
+        <form
+          onSubmit={confirmVerification}
+          className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-5"
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-slate-900">Domain email verification</p>
+              <p className="mt-1 text-xs leading-5 text-slate-600">
+                Send the OTP first, then enter the code sent to {domainEmail.trim() || "your domain email"}.
+              </p>
+
+              <label className="mt-4 block max-w-xs">
+                <span className="mb-1.5 block text-sm font-medium text-slate-800">Enter OTP</span>
+                <input
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  className={inputClass("otp")}
+                  maxLength={4}
+                  required
+                />
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || !otpSent}
+              className="inline-flex h-11 items-center justify-center rounded-full bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
+            >
+              {loading ? "Verifying..." : "Verify company"}
+            </button>
+          </div>
+
           {!otpSent ? (
-            <p className="text-xs text-amber-700">Send OTP first to enable verify.</p>
+            <p className="mt-3 text-xs text-amber-700">Send OTP first to enable verification.</p>
           ) : null}
         </form>
       ) : null}
 
-      {message ? <p className="mt-4 text-sm text-slate-700">{message}</p> : null}
+      {message ? <p className="mt-5 text-sm text-slate-700">{message}</p> : null}
     </div>
   );
 }

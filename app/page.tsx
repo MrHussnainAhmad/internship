@@ -21,43 +21,52 @@ export const metadata: Metadata = {
 function LandingPage() {
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:py-24">
-      <div className="grid gap-10 lg:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
         <div className="space-y-6">
-          <p className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
+          <p className="inline-flex rounded-full border border-slate-300 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-700">
             Internship-first platform
           </p>
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+
+          <h1 className="max-w-3xl text-4xl font-semibold tracking-[-0.04em] text-slate-900 sm:text-5xl">
             Find internships by skill, not noise.
           </h1>
-          <p className="max-w-xl text-lg text-slate-600">
+
+          <p className="max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
             InternHub helps students discover focused opportunities and lets companies
-            quickly find candidates by skills, level, and preferences.
+            find candidates by skills, level, and preferences.
           </p>
+
           <div className="flex flex-wrap gap-3">
             <Link
               href="/internships"
-              className="rounded-md bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
+              className="inline-flex h-11 items-center justify-center rounded-full bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
               Explore internships
             </Link>
             <Link
               href="/auth/signin"
-              className="rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
+              className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
             >
               Join with Google
             </Link>
           </div>
         </div>
-        <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_12px_32px_rgba(15,23,42,0.08)]">
           <h2 className="text-lg font-semibold text-slate-900">Smart search examples</h2>
-          <ul className="space-y-3 text-sm text-slate-700">
-            <li className="rounded-md bg-slate-50 px-3 py-2">&quot;unity internship&quot;</li>
-            <li className="rounded-md bg-slate-50 px-3 py-2">&quot;unity internship lahore&quot;</li>
-            <li className="rounded-md bg-slate-50 px-3 py-2">&quot;internship lahore&quot;</li>
+          <ul className="mt-4 space-y-3 text-sm text-slate-700">
+            <li className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              &quot;unity internship&quot;
+            </li>
+            <li className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              &quot;unity internship lahore&quot;
+            </li>
+            <li className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              &quot;internship lahore&quot;
+            </li>
           </ul>
-          <p className="text-sm text-slate-600">
-            Includes filters for city, country, level, type, and paid/unpaid with remote
-            opportunities blended in.
+          <p className="mt-4 text-sm leading-6 text-slate-600">
+            Includes filters for city, country, level, type, and paid or unpaid opportunities.
           </p>
         </div>
       </div>
@@ -113,4 +122,3 @@ export default async function HomePage() {
     </section>
   );
 }
-

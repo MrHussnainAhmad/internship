@@ -96,7 +96,6 @@ export function PostCard({ item }: { item: PostItem }) {
 
   useEffect(() => {
     void loadPreviewComments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.id, commentsCount]);
 
   const onFollow = () => {
@@ -261,9 +260,9 @@ export function PostCard({ item }: { item: PostItem }) {
         : "";
 
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
       {item.repost?.sourcePath ? (
-        <div className="mb-3 flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+        <div className="mb-4 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-600">
           <span className="inline-flex items-center gap-1.5 font-semibold text-slate-700">
             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M17 1v4H7" />
@@ -273,19 +272,19 @@ export function PostCard({ item }: { item: PostItem }) {
             </svg>
             Reposted
           </span>
-          <Link href={item.repost.sourcePath} className="text-blue-700 hover:text-blue-900">
+          <Link href={item.repost.sourcePath} className="font-medium text-slate-700 transition hover:text-slate-900">
             {repostSourceLabel}
           </Link>
         </div>
       ) : null}
 
-      <header className="mb-3 flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
+      <header className="mb-4 flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
           <Avatar name={item.author.name} image={item.author.image} />
-          <div>
+          <div className="min-w-0">
             <Link
               href={`/profiles/${item.author.username}`}
-              className="text-sm font-semibold text-slate-900 hover:text-blue-700"
+              className="truncate text-sm font-semibold text-slate-900 transition hover:text-slate-700"
             >
               {item.author.name}
             </Link>
@@ -294,59 +293,49 @@ export function PostCard({ item }: { item: PostItem }) {
             </p>
           </div>
         </div>
+
         {item.author.canFollow && !isFollowing ? (
           <button
             type="button"
             onClick={onFollow}
             disabled={followBusy}
-            className="rounded-full border border-blue-300 px-3 py-1 text-xs font-semibold text-blue-700 disabled:opacity-60"
+            className="inline-flex h-9 items-center justify-center rounded-full border border-slate-300 px-4 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
           >
-            {followBusy ? "..." : "Follow"}
+            {followBusy ? "Following..." : "Follow"}
           </button>
         ) : null}
       </header>
 
-      {item.topic ? <p className="text-sm font-semibold text-slate-900">{item.topic}</p> : null}
-      <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-700">{item.content}</p>
+      {item.topic ? <p className="text-[15px] font-semibold text-slate-900">{item.topic}</p> : null}
+      <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">{item.content}</p>
 
-      <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3 text-xs text-slate-500">
+      <div className="mt-4 flex items-center gap-4 border-t border-slate-200 pt-4 text-xs text-slate-500">
         <span>{likesCount} likes</span>
         <span>{commentsCount} comments</span>
         <span>{shareCount} shares</span>
       </div>
-      <div className="mt-2 grid grid-cols-3 gap-2">
+
+      <div className="mt-3 grid grid-cols-3 gap-2">
         <button
           type="button"
           onClick={onLike}
-          className={`group inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm transition duration-200 ${
+          className={`inline-flex h-10 items-center justify-center rounded-full px-3 text-sm font-medium transition ${
             liked
-              ? "bg-blue-50 text-blue-700 shadow-[inset_0_0_0_1px_rgba(29,78,216,0.25)]"
+              ? "bg-slate-900 text-white"
               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
           }`}
         >
-          <svg
-            viewBox="0 0 24 24"
-            className={`h-4 w-4 transition-transform duration-200 ${
-              liked ? "scale-110" : "group-hover:scale-110"
-            }`}
-            fill={liked ? "currentColor" : "none"}
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M14 9V5a3 3 0 0 0-6 0v4H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h11a4 4 0 0 0 3.9-3.1l1.1-5.4A2 2 0 0 0 19 10h-5z" />
-          </svg>
           Like
         </button>
+
         <button
           type="button"
           onClick={onToggleComments}
-          className="inline-flex items-center justify-center gap-1.5 rounded-md bg-slate-100 px-3 py-2 text-sm text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-200"
+          className="inline-flex h-10 items-center justify-center rounded-full bg-slate-100 px-3 text-sm text-slate-700 transition hover:bg-slate-200"
         >
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
-          </svg>
           Comment
         </button>
+
         <ShareMenu
           sharePath={`/posts/${item.publicId}`}
           title={item.topic || "Post"}
@@ -358,17 +347,17 @@ export function PostCard({ item }: { item: PostItem }) {
       </div>
 
       {!commentsOpen && previewComments.length > 0 ? (
-        <section className="mt-4 space-y-2 border-t border-slate-200 pt-3">
+        <section className="mt-4 space-y-2 border-t border-slate-200 pt-4">
           {previewComments.map((comment) => (
-            <div key={comment.id} className="rounded-md bg-slate-50 px-3 py-2">
+            <div key={comment.id} className="rounded-xl bg-slate-50 px-3 py-3">
               <p className="text-xs font-semibold text-slate-900">{comment.author.name}</p>
-              <p className="line-clamp-2 text-sm text-slate-700">{comment.content}</p>
+              <p className="mt-1 line-clamp-2 text-sm text-slate-700">{comment.content}</p>
             </div>
           ))}
           <button
             type="button"
             onClick={onToggleComments}
-            className="text-xs font-semibold text-blue-700 hover:text-blue-900"
+            className="text-xs font-semibold text-slate-700 transition hover:text-slate-900"
           >
             View comments
           </button>
@@ -376,18 +365,18 @@ export function PostCard({ item }: { item: PostItem }) {
       ) : null}
 
       {commentsOpen ? (
-        <section className="mt-4 space-y-3 border-t border-slate-200 pt-3">
+        <section className="mt-4 space-y-4 border-t border-slate-200 pt-4">
           <form onSubmit={onComment} className="flex items-center gap-2">
             <input
               value={commentDraft}
               onChange={(event) => setCommentDraft(event.target.value)}
               placeholder="Write a comment"
-              className="flex-1 rounded-full border border-slate-300 px-4 py-2 text-sm"
+              className="h-11 flex-1 rounded-full border border-slate-300 bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
             />
             <button
               type="submit"
               disabled={busy || !commentDraft.trim()}
-              className="rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+              className="inline-flex h-11 items-center justify-center rounded-full bg-slate-900 px-4 text-sm font-semibold text-white disabled:opacity-60"
             >
               Post
             </button>
@@ -396,54 +385,57 @@ export function PostCard({ item }: { item: PostItem }) {
           {rootComments.map((comment) => {
             const replies = commentsByParent.get(comment.id) ?? [];
             return (
-              <div key={comment.id} className="rounded-lg border border-slate-200 p-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
+              <div key={comment.id} className="rounded-xl border border-slate-200 p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
                     <Link
                       href={`/profiles/${comment.author.username}`}
-                      className="text-sm font-semibold text-slate-900"
+                      className="text-sm font-semibold text-slate-900 transition hover:text-slate-700"
                     >
                       {comment.author.name}
                     </Link>
-                    <p className="mt-1 text-sm text-slate-700">{comment.content}</p>
+                    <p className="mt-1 text-sm leading-6 text-slate-700">{comment.content}</p>
                   </div>
-                  <span className="text-[11px] text-slate-500">
+                  <span className="shrink-0 text-[11px] text-slate-500">
                     {new Date(comment.createdAt).toLocaleTimeString()}
                   </span>
                 </div>
+
                 <button
                   type="button"
                   onClick={() => {
                     setReplyTo(comment.id);
                     setReplyDraft("");
                   }}
-                  className="mt-2 text-xs font-semibold text-blue-700"
+                  className="mt-2 text-xs font-semibold text-slate-700 transition hover:text-slate-900"
                 >
                   Reply
                 </button>
+
                 {replyTo === comment.id ? (
-                  <form onSubmit={onReply} className="mt-2 flex items-center gap-2">
+                  <form onSubmit={onReply} className="mt-3 flex items-center gap-2">
                     <input
                       value={replyDraft}
                       onChange={(event) => setReplyDraft(event.target.value)}
                       placeholder="Write a reply"
-                      className="flex-1 rounded-full border border-slate-300 px-4 py-2 text-sm"
+                      className="h-10 flex-1 rounded-full border border-slate-300 bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
                     />
                     <button
                       type="submit"
                       disabled={busy || !replyDraft.trim()}
-                      className="rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                      className="inline-flex h-10 items-center justify-center rounded-full bg-slate-900 px-4 text-sm font-semibold text-white disabled:opacity-60"
                     >
                       Post
                     </button>
                   </form>
                 ) : null}
+
                 {replies.length > 0 ? (
                   <div className="mt-3 space-y-2 border-l border-slate-200 pl-3">
                     {replies.map((reply) => (
-                      <div key={reply.id} className="rounded-md bg-slate-50 p-2">
+                      <div key={reply.id} className="rounded-xl bg-slate-50 p-3">
                         <p className="text-xs font-semibold text-slate-900">{reply.author.name}</p>
-                        <p className="text-sm text-slate-700">{reply.content}</p>
+                        <p className="mt-1 text-sm text-slate-700">{reply.content}</p>
                       </div>
                     ))}
                   </div>
@@ -458,7 +450,7 @@ export function PostCard({ item }: { item: PostItem }) {
         </section>
       ) : null}
 
-      {error ? <p className="mt-2 text-xs text-red-600">{error}</p> : null}
+      {error ? <p className="mt-3 text-xs text-red-600">{error}</p> : null}
     </article>
   );
 }

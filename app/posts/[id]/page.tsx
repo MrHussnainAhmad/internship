@@ -97,28 +97,31 @@ export default async function PostDetailPage(props: {
   if (!post) notFound();
 
   return (
-    <section className="mx-auto w-full max-w-2xl px-4 py-8">
-      <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <header className="mb-4 border-b border-slate-200 pb-4">
+    <section className="mx-auto w-full max-w-2xl px-4 py-8 md:py-10">
+      <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
+        <header className="border-b border-slate-200 pb-4">
           {post.author.username ? (
             <Link
               href={`/profiles/${post.author.username}`}
-              className="text-sm font-semibold text-slate-900 hover:text-blue-700"
+              className="text-sm font-semibold text-slate-900 transition hover:text-slate-700"
             >
               {post.author.name}
             </Link>
           ) : (
             <p className="text-sm font-semibold text-slate-900">{post.author.name}</p>
           )}
-          <p className="text-xs text-slate-500">
+          <p className="mt-1 text-xs text-slate-500">
             {new Date(post.createdAt).toLocaleString()}
           </p>
         </header>
 
         {post.topic ? (
-          <h1 className="text-lg font-semibold text-slate-900">{post.topic}</h1>
+          <h1 className="mt-5 text-[22px] font-semibold tracking-[-0.02em] text-slate-900">
+            {post.topic}
+          </h1>
         ) : null}
-        <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-slate-700">
+
+        <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-700">
           {post.content}
         </p>
       </article>

@@ -41,14 +41,14 @@ export function ApplyButton({ internshipSlug, className = "" }: ApplyButtonProps
   };
 
   return (
-    <div className={`flex flex-col gap-2 ${className}`}>
+    <div className={`flex flex-col gap-2.5 ${className}`}>
       <button
         type="button"
         title={isPending ? "Applying" : "Apply"}
         aria-label={isPending ? "Applying" : "Apply"}
         onClick={onApply}
         disabled={isPending}
-        className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-blue-800 disabled:opacity-60"
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-slate-900 px-5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(15,23,42,0.08)] transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? (
           <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2">
@@ -63,8 +63,10 @@ export function ApplyButton({ internshipSlug, className = "" }: ApplyButtonProps
         )}
         <span>{isPending ? "Applying..." : "Apply now"}</span>
       </button>
-      {message ? <p className="text-sm text-slate-600">{message}</p> : null}
+
+      {message ? (
+        <p className="text-sm leading-5 text-slate-600">{message}</p>
+      ) : null}
     </div>
   );
 }
-

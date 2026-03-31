@@ -171,135 +171,165 @@ export function PostInternshipForm() {
   };
 
   return (
-    <form onSubmit={submit} className="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-          Title
+    <form
+      onSubmit={submit}
+      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.06)]"
+    >
+      <div className="border-b border-slate-200 pb-4">
+        <h2 className="text-xl font-semibold tracking-[-0.02em] text-slate-900">Post internship</h2>
+        <p className="mt-1 text-sm text-slate-600">Create a clean, professional listing for applicants.</p>
+      </div>
+
+      <div className="mt-6 grid gap-5 sm:grid-cols-2">
+        <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
+          <span className="font-medium text-slate-800">Title</span>
           <input
             value={form.title}
             onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
             required
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-          Skills Required (comma separated)
+
+        <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
+          <span className="font-medium text-slate-800">Skills required</span>
           <input
             value={form.skillsRequired}
             onChange={(event) =>
               setForm((prev) => ({ ...prev, skillsRequired: event.target.value }))
             }
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
             required
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Level
+
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-medium text-slate-800">Level</span>
           <select
             value={form.level}
             onChange={(event) => setForm((prev) => ({ ...prev, level: event.target.value }))}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
           >
             <option value="beginner">Beginner</option>
             <option value="intermediate">Intermediate</option>
             <option value="advanced">Advanced</option>
           </select>
         </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Type
+
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-medium text-slate-800">Type</span>
           <select
             value={form.type}
             onChange={(event) => setForm((prev) => ({ ...prev, type: event.target.value }))}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
           >
             <option value="paid">Paid</option>
             <option value="unpaid">Unpaid</option>
             <option value="learn_and_earn">Learn and Earn</option>
           </select>
         </label>
-        <label className="flex flex-col gap-1 text-sm">
-          City
+
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-medium text-slate-800">City</span>
           <input
             value={form.location}
             onChange={(event) => setForm((prev) => ({ ...prev, location: event.target.value }))}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
             required
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Country
+
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-medium text-slate-800">Country</span>
           <input
             value={form.country}
             onChange={(event) => setForm((prev) => ({ ...prev, country: event.target.value }))}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
             required
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Duration
+
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-medium text-slate-800">Duration</span>
           <input
             value={form.duration}
             onChange={(event) => setForm((prev) => ({ ...prev, duration: event.target.value }))}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
             required
           />
         </label>
-        <label className="mt-6 flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={form.isRemote}
-            onChange={(event) => setForm((prev) => ({ ...prev, isRemote: event.target.checked }))}
-          />
-          Remote friendly
-        </label>
-        <label className="mt-6 flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={form.isPaid}
-            onChange={(event) => setForm((prev) => ({ ...prev, isPaid: event.target.checked }))}
-          />
-          Paid internship
-        </label>
-        <label className="mt-6 flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={form.resumeRequired}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, resumeRequired: event.target.checked }))
-            }
-          />
-          Resume required
-        </label>
-        <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-          Description (max 300 chars)
+
+        <div className="sm:col-span-2">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={form.isRemote}
+                onChange={(event) => setForm((prev) => ({ ...prev, isRemote: event.target.checked }))}
+                className="h-4 w-4"
+              />
+              Remote friendly
+            </label>
+
+            <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={form.isPaid}
+                onChange={(event) => setForm((prev) => ({ ...prev, isPaid: event.target.checked }))}
+                className="h-4 w-4"
+              />
+              Paid internship
+            </label>
+
+            <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={form.resumeRequired}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, resumeRequired: event.target.checked }))
+                }
+                className="h-4 w-4"
+              />
+              Resume required
+            </label>
+          </div>
+        </div>
+
+        <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
+          <span className="font-medium text-slate-800">Description</span>
           <textarea
             value={form.description}
             onChange={(event) =>
               setForm((prev) => ({ ...prev, description: event.target.value }))
             }
             maxLength={300}
-            className="min-h-28 rounded-md border border-slate-300 px-3 py-2"
+            className="min-h-32 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
             required
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-          Cover Image (optional, max 3MB input, auto-compressed to 100-150KB)
+
+        <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
+          <span className="font-medium text-slate-800">Cover image</span>
           <input
             type="file"
             accept="image/*"
             onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700"
           />
+          <p className="text-xs text-slate-500">
+            Optional. Max 3MB input. Image will be auto-compressed before upload.
+          </p>
         </label>
       </div>
-      <div className="mt-2 flex items-center justify-between gap-3">
+
+      <div className="mt-6 flex items-center justify-between gap-3 border-t border-slate-200 pt-4">
         {message ? <p className="text-sm text-red-600">{message}</p> : <span />}
         <button
           type="submit"
           title={saving ? "Publishing" : "Publish"}
           aria-label={saving ? "Publishing" : "Publish"}
           disabled={saving}
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+          className="inline-flex h-11 items-center justify-center rounded-full bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
         >
           {saving ? "Publishing..." : "Publish"}
         </button>

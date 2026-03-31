@@ -263,9 +263,9 @@ function PostCard({ item }: { item: Extract<FeedItem, { kind: "post" }> }) {
         : "";
 
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
       {item.repost?.sourcePath ? (
-        <div className="mb-3 flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+        <div className="mb-4 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-600">
           <span className="inline-flex items-center gap-1.5 font-semibold text-slate-700">
             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M17 1v4H7" />
@@ -275,72 +275,77 @@ function PostCard({ item }: { item: Extract<FeedItem, { kind: "post" }> }) {
             </svg>
             Reposted
           </span>
-          <Link href={item.repost.sourcePath} className="text-blue-700 hover:text-blue-900">
+          <Link href={item.repost.sourcePath} className="font-medium text-slate-700 transition hover:text-slate-900">
             {repostSourceLabel}
           </Link>
         </div>
       ) : null}
 
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Avatar name={item.author.name} image={item.author.image} size={42} />
-          <div>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <Avatar name={item.author.name} image={item.author.image} size={44} />
+          <div className="min-w-0">
             <Link
               href={`/profiles/${item.author.username}`}
-              className="text-sm font-semibold text-slate-900 hover:text-blue-700"
+              className="truncate text-sm font-semibold text-slate-900 transition hover:text-slate-700"
             >
               {item.author.name}
             </Link>
-            <p className="text-xs text-slate-600">@{item.author.username}</p>
+            <p className="truncate text-xs text-slate-500">@{item.author.username}</p>
+            <p className="mt-0.5 text-xs text-slate-500">{new Date(item.createdAt).toLocaleString()}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div className="flex shrink-0 items-center gap-2">
           {item.author.canFollow && !isFollowing ? (
             <button
               type="button"
               onClick={followAuthor}
               disabled={followBusy}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-blue-700 text-white disabled:opacity-60"
+              className="inline-flex h-9 items-center justify-center rounded-full border border-slate-300 px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
             >
-              <span className="text-sm font-semibold leading-none">
-                {followBusy ? "…" : "+"}
-              </span>
+              {followBusy ? "Following..." : "Follow"}
             </button>
           ) : null}
-          <span className="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-700">
+
+          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600">
             {item.author.role}
           </span>
         </div>
       </div>
 
-      {item.topic ? <p className="text-sm font-semibold text-slate-900">{item.topic}</p> : null}
-      <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{item.content}</p>
-      <p className="mt-2 text-xs text-slate-500">{new Date(item.createdAt).toLocaleString()}</p>
+      {item.topic ? (
+        <p className="mt-4 text-[15px] font-semibold text-slate-900">{item.topic}</p>
+      ) : null}
 
-      <div className="mt-3 flex items-center justify-between text-xs text-slate-600">
+      <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">{item.content}</p>
+
+      <div className="mt-4 flex items-center gap-4 border-b border-slate-200 pb-3 text-xs text-slate-500">
         <span>{likesCount} likes</span>
         <span>{commentsCount} comments</span>
         <span>{shareCount} shares</span>
       </div>
 
-      <div className="mt-3 grid grid-cols-3 gap-2 border-t border-slate-200 pt-3">
+      <div className="mt-3 grid grid-cols-3 gap-2">
         <button
           type="button"
           onClick={toggleLike}
           disabled={busy}
-          className={`rounded-md px-3 py-2 text-sm font-medium ${
-            liked ? "bg-blue-50 text-blue-700" : "bg-slate-100 text-slate-700"
+          className={`inline-flex h-10 items-center justify-center rounded-full px-3 text-sm font-medium transition ${
+            liked ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
           }`}
         >
           Like
         </button>
+
         <button
           type="button"
           onClick={toggleComments}
-          className="rounded-md bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700"
+          className="inline-flex h-10 items-center justify-center rounded-full bg-slate-100 px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-200"
         >
           Comment
         </button>
+
         <ShareMenu
           sharePath={`/posts/${item.publicId}`}
           title={item.topic || "Post"}
@@ -352,18 +357,18 @@ function PostCard({ item }: { item: Extract<FeedItem, { kind: "post" }> }) {
       </div>
 
       {commentsOpen ? (
-        <div className="mt-4 space-y-3 border-t border-slate-200 pt-3">
+        <div className="mt-4 space-y-4 border-t border-slate-200 pt-4">
           <form onSubmit={submitComment} className="flex items-center gap-2">
             <input
               value={commentDraft}
               onChange={(event) => setCommentDraft(event.target.value)}
               placeholder="Write a comment..."
-              className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm"
+              className="h-11 flex-1 rounded-full border border-slate-300 bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
             />
             <button
               type="submit"
               disabled={busy || !commentDraft.trim()}
-              className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+              className="inline-flex h-11 items-center justify-center rounded-full bg-slate-900 px-4 text-sm font-semibold text-white disabled:opacity-60"
             >
               Post
             </button>
@@ -376,49 +381,53 @@ function PostCard({ item }: { item: Extract<FeedItem, { kind: "post" }> }) {
               {rootComments.map((comment) => {
                 const replies = commentsByParent.get(comment.id) ?? [];
                 return (
-                  <div key={comment.id} className="rounded-md border border-slate-200 p-3">
+                  <div key={comment.id} className="rounded-xl border border-slate-200 bg-white p-3">
                     <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex min-w-0 items-center gap-2">
                         <Avatar
                           name={comment.author.name}
                           image={comment.author.image}
-                          size={28}
+                          size={30}
                         />
-                        <Link
-                          href={`/profiles/${comment.author.username}`}
-                          className="text-sm font-semibold text-slate-900 hover:text-blue-700"
-                        >
-                          {comment.author.name}
-                        </Link>
+                        <div className="min-w-0">
+                          <Link
+                            href={`/profiles/${comment.author.username}`}
+                            className="truncate text-sm font-semibold text-slate-900 transition hover:text-slate-700"
+                          >
+                            {comment.author.name}
+                          </Link>
+                          <p className="text-[11px] text-slate-500">
+                            {new Date(comment.createdAt).toLocaleString()}
+                          </p>
+                        </div>
                       </div>
-                      <span className="text-xs text-slate-500">
-                        {new Date(comment.createdAt).toLocaleString()}
-                      </span>
                     </div>
-                    <p className="mt-1 text-sm text-slate-700">{comment.content}</p>
+
+                    <p className="mt-2 text-sm leading-6 text-slate-700">{comment.content}</p>
+
                     <button
                       type="button"
                       onClick={() => {
                         setReplyTo(comment.id);
                         setReplyDraft("");
                       }}
-                      className="mt-2 text-xs font-semibold text-blue-700 hover:text-blue-900"
+                      className="mt-2 text-xs font-semibold text-slate-700 transition hover:text-slate-900"
                     >
                       Reply
                     </button>
 
                     {replyTo === comment.id ? (
-                      <form onSubmit={submitReply} className="mt-2 flex items-center gap-2">
+                      <form onSubmit={submitReply} className="mt-3 flex items-center gap-2">
                         <input
                           value={replyDraft}
                           onChange={(event) => setReplyDraft(event.target.value)}
                           placeholder="Write a reply..."
-                          className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm"
+                          className="h-10 flex-1 rounded-full border border-slate-300 bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
                         />
                         <button
                           type="submit"
                           disabled={busy || !replyDraft.trim()}
-                          className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                          className="inline-flex h-10 items-center justify-center rounded-full bg-slate-900 px-4 text-sm font-semibold text-white disabled:opacity-60"
                         >
                           Post
                         </button>
@@ -428,26 +437,28 @@ function PostCard({ item }: { item: Extract<FeedItem, { kind: "post" }> }) {
                     {replies.length > 0 ? (
                       <div className="mt-3 space-y-2 border-l border-slate-200 pl-3">
                         {replies.map((reply) => (
-                          <div key={reply.id} className="rounded-md bg-slate-50 p-2">
+                          <div key={reply.id} className="rounded-xl bg-slate-50 p-3">
                             <div className="flex items-start justify-between gap-2">
-                              <div className="flex items-center gap-2">
+                              <div className="flex min-w-0 items-center gap-2">
                                 <Avatar
                                   name={reply.author.name}
                                   image={reply.author.image}
-                                  size={22}
+                                  size={24}
                                 />
-                                <Link
-                                  href={`/profiles/${reply.author.username}`}
-                                  className="text-xs font-semibold text-slate-900 hover:text-blue-700"
-                                >
-                                  {reply.author.name}
-                                </Link>
+                                <div className="min-w-0">
+                                  <Link
+                                    href={`/profiles/${reply.author.username}`}
+                                    className="truncate text-xs font-semibold text-slate-900 transition hover:text-slate-700"
+                                  >
+                                    {reply.author.name}
+                                  </Link>
+                                  <p className="text-[11px] text-slate-500">
+                                    {new Date(reply.createdAt).toLocaleString()}
+                                  </p>
+                                </div>
                               </div>
-                              <span className="text-[11px] text-slate-500">
-                                {new Date(reply.createdAt).toLocaleString()}
-                              </span>
                             </div>
-                            <p className="mt-1 text-sm text-slate-700">{reply.content}</p>
+                            <p className="mt-2 text-sm text-slate-700">{reply.content}</p>
                           </div>
                         ))}
                       </div>
@@ -460,7 +471,7 @@ function PostCard({ item }: { item: Extract<FeedItem, { kind: "post" }> }) {
         </div>
       ) : null}
 
-      {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
     </article>
   );
 }
@@ -471,34 +482,46 @@ function InternshipCard({
   item: Extract<FeedItem, { kind: "internship" }>;
 }) {
   return (
-    <article className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 shadow-sm">
-      <div className="mb-2 flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Internship</p>
-          <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
-          <p className="text-sm text-slate-600">{item.companyName}</p>
+    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">
+            Internship
+          </p>
+          <h3 className="mt-1 text-[18px] font-semibold tracking-[-0.01em] text-slate-900">
+            {item.title}
+          </h3>
+          <p className="mt-1 text-sm text-slate-600">{item.companyName}</p>
         </div>
-        <span className="rounded-full bg-white px-2 py-1 text-xs text-slate-700">
+
+        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
           {item.type.replaceAll("_", " ")}
         </span>
       </div>
-      <p className="text-sm text-slate-700">
+
+      <p className="mt-3 text-sm text-slate-700">
         {item.location}, {item.country}
-        {item.isRemote ? " • Remote friendly" : ""}
+        {item.isRemote ? " · Remote friendly" : ""}
       </p>
-      <p className="mt-2 line-clamp-3 text-sm text-slate-600">{item.description}</p>
-      <div className="mt-3 flex flex-wrap gap-2">
+
+      <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{item.description}</p>
+
+      <div className="mt-4 flex flex-wrap gap-2">
         {item.skillsRequired.slice(0, 5).map((skill) => (
           <span
             key={skill}
-            className="rounded-full border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700"
+            className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700"
           >
             {skill}
           </span>
         ))}
       </div>
-      <div className="mt-3 flex items-center justify-between">
-        <span className="text-xs uppercase tracking-wide text-slate-500">{item.level}</span>
+
+      <div className="mt-5 flex items-center justify-between border-t border-slate-200 pt-4">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">
+          {item.level}
+        </span>
+
         <div className="flex items-center gap-2">
           <ShareMenu
             sharePath={`/internships/${item.slug}`}
@@ -508,7 +531,7 @@ function InternshipCard({
           />
           <Link
             href={`/internships/${item.slug}`}
-            className="text-sm font-semibold text-blue-700 hover:text-blue-900"
+            className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
           >
             View details
           </Link>
@@ -585,17 +608,17 @@ export function HomeFeed({
   };
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-5">
       {initialKeywords.length > 0 ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-slate-500">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500">
             Feed based on your interests
           </p>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap gap-2">
             {initialKeywords.map((keyword) => (
               <span
                 key={keyword}
-                className="rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-700"
+                className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700"
               >
                 {keyword}
               </span>
@@ -605,7 +628,7 @@ export function HomeFeed({
       ) : null}
 
       {items.length === 0 ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
           Your personalized feed is empty right now. Add profile details and check back.
         </div>
       ) : (
@@ -619,12 +642,12 @@ export function HomeFeed({
       )}
 
       {hasMore ? (
-        <div className="flex justify-center pt-2">
+        <div className="flex justify-center pt-1">
           <button
             type="button"
             onClick={loadMore}
             disabled={loading}
-            className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-60"
+            className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
           >
             {loading ? "Loading..." : "Load more"}
           </button>

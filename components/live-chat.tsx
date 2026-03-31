@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 type ChatMessage = {
   id: string;
@@ -22,6 +22,7 @@ export function LiveChat({ chatId, title }: LiveChatProps) {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const listRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -61,6 +62,11 @@ export function LiveChat({ chatId, title }: LiveChatProps) {
     };
   }, [chatId]);
 
+  useEffect(() => {
+    if (!listRef.current) return;
+    listRef.current.scrollTop = listRef.current.scrollHeight;
+  }, [messages]);
+
   const sendMessage = async (event: FormEvent) => {
     event.preventDefault();
     const text = draft.trim();
@@ -94,49 +100,61 @@ export function LiveChat({ chatId, title }: LiveChatProps) {
   };
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
       <div className="border-b border-slate-200 px-4 py-3">
         <h3 className="text-sm font-semibold text-slate-900">{title ?? "Live chat"}</h3>
       </div>
-      <div className="min-h-[18rem] max-h-[30rem] space-y-2 overflow-y-auto p-4">
+
+      <div
+        ref={listRef}
+        className="min-h-[18rem] max-h-[30rem] space-y-3 overflow-y-auto bg-slate-50/50 p-4"
+      >
         {loading ? <p className="text-sm text-slate-500">Loading messages...</p> : null}
+
         {!loading && messages.length === 0 ? (
           <p className="text-sm text-slate-500">No messages yet. Start the conversation.</p>
         ) : null}
+
         {messages.map((message) => {
           const mine = message.senderId === currentUserId;
+
           return (
             <div
               key={message.id}
-              className={`max-w-[85%] rounded-md px-3 py-2 text-sm ${
-                mine
-                  ? "ml-auto bg-slate-900 text-white"
-                  : "mr-auto bg-slate-100 text-slate-800"
-              }`}
+              className={`flex ${mine ? "justify-end" : "justify-start"}`}
             >
-              <p>{message.text}</p>
-              <p className={`mt-1 text-[11px] ${mine ? "text-slate-300" : "text-slate-500"}`}>
-                {new Date(message.createdAt).toLocaleTimeString()}
-              </p>
+              <div
+                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm shadow-[0_1px_2px_rgba(15,23,42,0.04)] ${
+                  mine
+                    ? "bg-slate-900 text-white"
+                    : "border border-slate-200 bg-white text-slate-800"
+                }`}
+              >
+                <p className="whitespace-pre-wrap leading-6">{message.text}</p>
+                <p className={`mt-1 text-[11px] ${mine ? "text-slate-300" : "text-slate-500"}`}>
+                  {new Date(message.createdAt).toLocaleTimeString()}
+                </p>
+              </div>
             </div>
           );
         })}
       </div>
 
-      <form onSubmit={sendMessage} className="border-t border-slate-200 p-3">
-        <div className="flex gap-2">
+      <form onSubmit={sendMessage} className="border-t border-slate-200 bg-white p-3">
+        <div className="flex items-center gap-2">
           <input
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             placeholder="Type your message..."
-            className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="h-11 flex-1 rounded-full border border-slate-300 bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
           />
+
           <button
             type="submit"
             title={sending ? "Sending" : "Send"}
             aria-label={sending ? "Sending" : "Send"}
             disabled={sending}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-slate-900 text-white disabled:opacity-60"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-900 text-white transition hover:bg-slate-800 disabled:opacity-60"
           >
             {sending ? (
               <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2">
@@ -152,6 +170,7 @@ export function LiveChat({ chatId, title }: LiveChatProps) {
             <span className="sr-only">{sending ? "Sending" : "Send"}</span>
           </button>
         </div>
+
         {error ? <p className="mt-2 text-xs text-red-600">{error}</p> : null}
       </form>
     </div>

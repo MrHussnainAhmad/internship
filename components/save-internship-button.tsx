@@ -44,10 +44,10 @@ export function SaveInternshipButton({ internshipId, className = "" }: SaveInter
         }
         writeSaved(set);
       }}
-      className={`inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-semibold transition ${
+      className={`inline-flex h-10 items-center justify-center rounded-full border px-4 text-sm font-semibold transition ${
         saved
-          ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-          : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+          ? "border-slate-900 bg-slate-900 text-white"
+          : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
       } ${className}`}
       aria-pressed={saved}
     >
@@ -55,4 +55,3 @@ export function SaveInternshipButton({ internshipId, className = "" }: SaveInter
     </button>
   );
 }
-

@@ -217,313 +217,350 @@ export function OnboardingForm() {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-5 rounded-xl border border-slate-200 bg-white p-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1 text-sm">
-          Name
-          <input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2"
-            required
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Username
-          <input
-            value={username}
-            onChange={(event) => setUsername(event.target.value.toLowerCase())}
-            className="rounded-md border border-slate-300 px-3 py-2 disabled:bg-slate-100 disabled:text-slate-500"
-            disabled={isUsernameLocked}
-            required
-          />
-          {isUsernameLocked ? (
-            <span className="text-xs text-slate-500">Username is locked after first setup.</span>
-          ) : null}
-        </label>
+    <form
+      onSubmit={submit}
+      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.06)]"
+    >
+      <div className="border-b border-slate-200 pb-4">
+        <h1 className="text-[22px] font-semibold tracking-[-0.02em] text-slate-900">
+          Complete your profile
+        </h1>
+        <p className="mt-1 text-sm text-slate-600">
+          Set up your account details to start using InternHub.
+        </p>
       </div>
 
-      <label className="flex flex-col gap-1 text-sm">
-        Bio (max 100 chars)
-        <textarea
-          value={bio}
-          onChange={(event) => setBio(event.target.value)}
-          className="min-h-20 rounded-md border border-slate-300 px-3 py-2"
-          maxLength={100}
-          placeholder="Write a short bio"
-        />
-        <span className="text-xs text-slate-500">{bio.length}/100</span>
-      </label>
+      <div className="mt-6 space-y-6">
+        <div className="grid gap-5 sm:grid-cols-2">
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="font-medium text-slate-800">Name</span>
+            <input
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+              required
+            />
+          </label>
 
-      <label className="flex flex-col gap-1 text-sm">
-        Role
-        <select
-          value={role}
-          onChange={(event) => setRole(event.target.value as Role)}
-          className="rounded-md border border-slate-300 px-3 py-2 disabled:bg-slate-100 disabled:text-slate-500"
-          disabled={isRoleLocked}
-        >
-          <option value="student">Student</option>
-          <option value="company">Company</option>
-        </select>
-        {isRoleLocked ? (
-          <span className="text-xs text-slate-500">Role is locked after first setup.</span>
-        ) : null}
-      </label>
-
-      {role === "student" ? (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-            Skills (comma separated)
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="font-medium text-slate-800">Username</span>
             <input
-              value={student.skills}
-              onChange={(event) =>
-                setStudent((prev) => ({ ...prev, skills: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
+              value={username}
+              onChange={(event) => setUsername(event.target.value.toLowerCase())}
+              className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none disabled:bg-slate-100 disabled:text-slate-500"
+              disabled={isUsernameLocked}
               required
             />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            Level
-            <select
-              value={student.level}
-              onChange={(event) =>
-                setStudent((prev) => ({ ...prev, level: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-            >
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced</option>
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            Preferred Type
-            <select
-              value={student.preferredType}
-              onChange={(event) =>
-                setStudent((prev) => ({ ...prev, preferredType: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-            >
-              <option value="paid">Paid</option>
-              <option value="unpaid">Unpaid</option>
-              <option value="learn_and_earn">Learn and Earn</option>
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-            Education
-            <input
-              value={student.education}
-              onChange={(event) =>
-                setStudent((prev) => ({ ...prev, education: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            City
-            <input
-              value={student.location}
-              onChange={(event) =>
-                setStudent((prev) => ({ ...prev, location: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            Country
-            <input
-              value={student.country}
-              onChange={(event) =>
-                setStudent((prev) => ({ ...prev, country: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-            Languages (comma separated)
-            <input
-              value={student.languages}
-              onChange={(event) =>
-                setStudent((prev) => ({ ...prev, languages: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            GPA (optional)
-            <input
-              value={student.gpa}
-              onChange={(event) =>
-                setStudent((prev) => ({ ...prev, gpa: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            Resume (required PDF, max 130KB)
-            <input
-              type="file"
-              accept="application/pdf"
-              onChange={(event) => setResumeFile(event.target.files?.[0] ?? null)}
-              className="rounded-md border border-slate-300 px-3 py-2"
-            />
-            {student.resumeUrl ? (
-              <a
-                href={student.resumeUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs font-medium text-blue-700 hover:text-blue-900"
-              >
-                View current resume
-              </a>
+            {isUsernameLocked ? (
+              <span className="text-xs text-slate-500">Username is locked after first setup.</span>
             ) : null}
           </label>
-          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-            Portfolio URL (optional)
-            <input
-              value={student.portfolioUrl}
-              onChange={(event) =>
-                setStudent((prev) => ({ ...prev, portfolioUrl: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-              placeholder="https://..."
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            LinkedIn URL (optional)
-            <input
-              value={student.linkedinUrl}
-              onChange={(event) =>
-                setStudent((prev) => ({ ...prev, linkedinUrl: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-              placeholder="https://..."
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            Twitter URL (optional)
-            <input
-              value={student.twitterUrl}
-              onChange={(event) =>
-                setStudent((prev) => ({ ...prev, twitterUrl: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-              placeholder="https://..."
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-            Instagram URL (optional)
-            <input
-              value={student.instagramUrl}
-              onChange={(event) =>
-                setStudent((prev) => ({ ...prev, instagramUrl: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-              placeholder="https://..."
-            />
-          </label>
         </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-            Company Name
-            <input
-              value={company.companyName}
-              onChange={(event) =>
-                setCompany((prev) => ({ ...prev, companyName: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            Industry
-            <input
-              value={company.industry}
-              onChange={(event) =>
-                setCompany((prev) => ({ ...prev, industry: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            City
-            <input
-              value={company.location}
-              onChange={(event) =>
-                setCompany((prev) => ({ ...prev, location: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            Country
-            <input
-              value={company.country}
-              onChange={(event) =>
-                setCompany((prev) => ({ ...prev, country: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-              required
-            />
-          </label>
-          <label className="mt-6 flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={company.isRemote}
-              onChange={(event) =>
-                setCompany((prev) => ({ ...prev, isRemote: event.target.checked }))
-              }
-            />
-            Remote friendly
-          </label>
-          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-            Description (max 200 chars)
-            <textarea
-              value={company.description}
-              onChange={(event) =>
-                setCompany((prev) => ({ ...prev, description: event.target.value }))
-              }
-              className="min-h-28 rounded-md border border-slate-300 px-3 py-2"
-              required
-              maxLength={200}
-            />
-          </label>
-          <div className="sm:col-span-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-            Company links moved to <span className="font-semibold">Get Verified</span>.
-            Complete profile first, then verify from your profile page.
-          </div>
-        </div>
-      )}
 
-      {message ? <p className="text-sm text-red-600">{message}</p> : null}
-      <button
-        type="submit"
-        title={saving ? "Saving" : "Save and continue"}
-        aria-label={saving ? "Saving" : "Save and continue"}
-        disabled={saving}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-slate-900 text-white disabled:opacity-60"
-      >
-        {saving ? (
-          <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="9" className="opacity-30" />
-            <path d="M21 12a9 9 0 0 0-9-9" />
-          </svg>
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-medium text-slate-800">Bio</span>
+          <textarea
+            value={bio}
+            onChange={(event) => setBio(event.target.value)}
+            className="min-h-24 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+            maxLength={100}
+            placeholder="Write a short bio"
+          />
+          <span className="text-xs text-slate-500">{bio.length}/100</span>
+        </label>
+
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-medium text-slate-800">Role</span>
+          <select
+            value={role}
+            onChange={(event) => setRole(event.target.value as Role)}
+            className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none disabled:bg-slate-100 disabled:text-slate-500"
+            disabled={isRoleLocked}
+          >
+            <option value="student">Student</option>
+            <option value="company">Company</option>
+          </select>
+          {isRoleLocked ? (
+            <span className="text-xs text-slate-500">Role is locked after first setup.</span>
+          ) : null}
+        </label>
+
+        {role === "student" ? (
+          <div className="grid gap-5 sm:grid-cols-2">
+            <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
+              <span className="font-medium text-slate-800">Skills</span>
+              <input
+                value={student.skills}
+                onChange={(event) =>
+                  setStudent((prev) => ({ ...prev, skills: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+                required
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-slate-800">Level</span>
+              <select
+                value={student.level}
+                onChange={(event) =>
+                  setStudent((prev) => ({ ...prev, level: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+              >
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-slate-800">Preferred type</span>
+              <select
+                value={student.preferredType}
+                onChange={(event) =>
+                  setStudent((prev) => ({ ...prev, preferredType: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+              >
+                <option value="paid">Paid</option>
+                <option value="unpaid">Unpaid</option>
+                <option value="learn_and_earn">Learn and Earn</option>
+              </select>
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
+              <span className="font-medium text-slate-800">Education</span>
+              <input
+                value={student.education}
+                onChange={(event) =>
+                  setStudent((prev) => ({ ...prev, education: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+                required
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-slate-800">City</span>
+              <input
+                value={student.location}
+                onChange={(event) =>
+                  setStudent((prev) => ({ ...prev, location: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+                required
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-slate-800">Country</span>
+              <input
+                value={student.country}
+                onChange={(event) =>
+                  setStudent((prev) => ({ ...prev, country: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+                required
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
+              <span className="font-medium text-slate-800">Languages</span>
+              <input
+                value={student.languages}
+                onChange={(event) =>
+                  setStudent((prev) => ({ ...prev, languages: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-slate-800">GPA</span>
+              <input
+                value={student.gpa}
+                onChange={(event) =>
+                  setStudent((prev) => ({ ...prev, gpa: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-slate-800">Resume</span>
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={(event) => setResumeFile(event.target.files?.[0] ?? null)}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700"
+              />
+              {student.resumeUrl ? (
+                <a
+                  href={student.resumeUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs font-medium text-slate-900 underline decoration-slate-300 underline-offset-4 hover:decoration-slate-900"
+                >
+                  View current resume
+                </a>
+              ) : null}
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
+              <span className="font-medium text-slate-800">Portfolio URL</span>
+              <input
+                value={student.portfolioUrl}
+                onChange={(event) =>
+                  setStudent((prev) => ({ ...prev, portfolioUrl: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+                placeholder="https://..."
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-slate-800">LinkedIn URL</span>
+              <input
+                value={student.linkedinUrl}
+                onChange={(event) =>
+                  setStudent((prev) => ({ ...prev, linkedinUrl: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+                placeholder="https://..."
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-slate-800">Twitter URL</span>
+              <input
+                value={student.twitterUrl}
+                onChange={(event) =>
+                  setStudent((prev) => ({ ...prev, twitterUrl: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+                placeholder="https://..."
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
+              <span className="font-medium text-slate-800">Instagram URL</span>
+              <input
+                value={student.instagramUrl}
+                onChange={(event) =>
+                  setStudent((prev) => ({ ...prev, instagramUrl: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+                placeholder="https://..."
+              />
+            </label>
+          </div>
         ) : (
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M5 13l4 4L19 7" />
-          </svg>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
+              <span className="font-medium text-slate-800">Company name</span>
+              <input
+                value={company.companyName}
+                onChange={(event) =>
+                  setCompany((prev) => ({ ...prev, companyName: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+                required
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-slate-800">Industry</span>
+              <input
+                value={company.industry}
+                onChange={(event) =>
+                  setCompany((prev) => ({ ...prev, industry: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+                required
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-slate-800">City</span>
+              <input
+                value={company.location}
+                onChange={(event) =>
+                  setCompany((prev) => ({ ...prev, location: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+                required
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-slate-800">Country</span>
+              <input
+                value={company.country}
+                onChange={(event) =>
+                  setCompany((prev) => ({ ...prev, country: event.target.value }))
+                }
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+                required
+              />
+            </label>
+
+            <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={company.isRemote}
+                onChange={(event) =>
+                  setCompany((prev) => ({ ...prev, isRemote: event.target.checked }))
+                }
+                className="h-4 w-4"
+              />
+              Remote friendly
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
+              <span className="font-medium text-slate-800">Description</span>
+              <textarea
+                value={company.description}
+                onChange={(event) =>
+                  setCompany((prev) => ({ ...prev, description: event.target.value }))
+                }
+                className="min-h-32 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 focus:border-slate-400 focus:outline-none"
+                required
+                maxLength={200}
+              />
+            </label>
+
+            <div className="sm:col-span-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
+              Company links moved to <span className="font-semibold text-slate-900">Get Verified</span>.
+              Complete profile first, then verify from your profile page.
+            </div>
+          </div>
         )}
-        <span className="sr-only">{saving ? "Saving" : "Save and continue"}</span>
-      </button>
+
+        {message ? <p className="text-sm text-red-600">{message}</p> : null}
+
+        <div className="flex justify-end border-t border-slate-200 pt-4">
+          <button
+            type="submit"
+            title={saving ? "Saving" : "Save and continue"}
+            aria-label={saving ? "Saving" : "Save and continue"}
+            disabled={saving}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
+          >
+            {saving ? (
+              <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="9" className="opacity-30" />
+                <path d="M21 12a9 9 0 0 0-9-9" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+            <span>{saving ? "Saving..." : "Save and continue"}</span>
+          </button>
+        </div>
+      </div>
     </form>
   );
 }

@@ -47,35 +47,43 @@ export function StudentPostComposer({ onPosted }: Props) {
   };
 
   return (
-    <form onSubmit={submit} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <h3 className="text-lg font-semibold text-slate-900">Share a post</h3>
-      <p className="mt-1 text-sm text-slate-600">
-        Share certificates, learning progress, and achievements (text-only).
-      </p>
-      <div className="mt-3 space-y-3">
+    <form
+      onSubmit={submit}
+      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]"
+    >
+      <div className="border-b border-slate-200 pb-4">
+        <h3 className="text-[18px] font-semibold tracking-[-0.01em] text-slate-900">Share a post</h3>
+        <p className="mt-1 text-sm text-slate-600">
+          Share certificates, learning progress, and achievements.
+        </p>
+      </div>
+
+      <div className="mt-4 space-y-4">
         <input
           value={topic}
           onChange={(event) => setTopic(event.target.value)}
-          placeholder="Topic (e.g. React certificate)"
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+          placeholder="Topic"
+          className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
         />
+
         <textarea
           value={content}
           onChange={(event) => setContent(event.target.value)}
           placeholder="Write your update..."
-          className="min-h-28 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="min-h-32 w-full rounded-2xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
           required
           maxLength={800}
         />
       </div>
-      <div className="mt-3 flex items-center justify-between">
+
+      <div className="mt-4 flex items-center justify-between gap-3">
         {message ? <p className="text-sm text-slate-600">{message}</p> : <span />}
         <button
           type="submit"
           title={busy ? "Posting" : "Post"}
           aria-label={busy ? "Posting" : "Post"}
           disabled={busy}
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+          className="inline-flex h-10 items-center justify-center rounded-full bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
         >
           {busy ? "Posting..." : "Post"}
         </button>
