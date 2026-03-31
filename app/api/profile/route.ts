@@ -14,6 +14,7 @@ const payloadSchema = z.object({
     .regex(/^[a-z0-9_]{3,20}$/)
     .optional(),
   bio: z.string().trim().max(100).optional(),
+  image: z.string().trim().url().optional().or(z.literal("")),
   role: roleSchema,
 });
 
@@ -73,7 +74,7 @@ export async function PUT(request: Request) {
     );
   }
 
-  const { name, username, bio, role } = parsed.data;
+  const { name, username, bio, image, role } = parsed.data;
 
   await ensureIndexes();
   const db = await getDb();
@@ -137,6 +138,7 @@ export async function PUT(request: Request) {
     updatedAt: Date;
     username?: string;
     bio?: string;
+    image?: string;
   } = {
     name,
     role: existingRole ?? role,
@@ -145,6 +147,7 @@ export async function PUT(request: Request) {
 
   if (!existingUsername && username !== undefined) updateData.username = username;
   if (bio !== undefined) updateData.bio = bio;
+  if (image !== undefined) updateData.image = image;
 
   await users.updateOne(
     { _id: currentUser._id },

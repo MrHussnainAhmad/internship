@@ -7,6 +7,7 @@ import { ApplyButton } from "@/components/apply-button";
 import { SaveInternshipButton } from "@/components/save-internship-button";
 import { ConnectButton } from "@/components/connect-button";
 import { CompanyApplicantsChat } from "@/components/company-applicants-chat";
+import { VerifiedBadge } from "@/components/verified-badge";
 import { auth } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { getInternshipBySlug, getRelatedInternships } from "@/lib/internships";
@@ -329,6 +330,11 @@ export default async function InternshipDetailPage(props: {
                     {internship.company?.companyName ?? "Company"}
                   </p>
                 )}
+                {internship.company?.verified ? (
+                  <div className="mt-1">
+                    <VerifiedBadge />
+                  </div>
+                ) : null}
                 <p className="text-xs text-slate-600">Company</p>
               </div>
             </div>
@@ -572,6 +578,11 @@ export default async function InternshipDetailPage(props: {
                         </span>
                       </div>
                       <p className="mt-1 text-xs text-slate-600">{item.companyName}</p>
+                      {item.companyVerified ? (
+                        <div className="mt-1">
+                          <VerifiedBadge trustedLabel={false} />
+                        </div>
+                      ) : null}
                       <p className="mt-1 text-xs text-slate-500">
                         {item.location}, {item.country}
                         {item.isRemote ? " • Remote" : ""}

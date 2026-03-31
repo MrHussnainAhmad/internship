@@ -30,6 +30,7 @@ type InternshipListItem = {
   imageUrl?: string;
   description: string;
   companyName: string;
+  companyVerified?: boolean;
   createdAt: string;
 };
 
@@ -181,11 +182,9 @@ export async function queryInternships(
     .filter((id): id is ObjectId => id instanceof ObjectId);
   const companyRows = await companies
     .find({ userId: { $in: companyIds } })
-    .project({ userId: 1, companyName: 1 })
+    .project({ userId: 1, companyName: 1, verified: 1 })
     .toArray();
-  const companyMap = new Map(
-    companyRows.map((row) => [row.userId.toString(), row.companyName as string])
-  );
+  const companyMap = new Map(companyRows.map((row) => [row.userId.toString(), row]));
 
   const items = rows.map((row) => ({
     _id: row._id.toString(),
@@ -204,7 +203,10 @@ export async function queryInternships(
     imageUrl: row.imageUrl ? String(row.imageUrl) : undefined,
     description: String(row.description ?? ""),
     companyName:
-      companyMap.get((row.companyId as ObjectId).toString()) ?? "Company",
+      String(companyMap.get((row.companyId as ObjectId).toString())?.companyName ?? "Company"),
+    companyVerified: Boolean(
+      companyMap.get((row.companyId as ObjectId).toString())?.verified
+    ),
     createdAt: new Date(row.createdAt ?? Date.now()).toISOString(),
   }));
 
@@ -231,6 +233,7 @@ export async function getInternshipBySlug(slug: string) {
         country: 1,
         isRemote: 1,
         description: 1,
+        verified: 1,
       },
     }
   );
@@ -266,6 +269,7 @@ export async function getInternshipBySlug(slug: string) {
           country: String(company.country ?? ""),
           isRemote: Boolean(company.isRemote),
           description: String(company.description ?? ""),
+          verified: Boolean(company.verified),
         }
       : null,
     createdAt: new Date(internship.createdAt ?? Date.now()).toISOString(),
@@ -330,18 +334,18 @@ export async function getRelatedInternships(args: {
     ? await db
         .collection("companyProfiles")
         .find({ userId: { $in: companyIds } })
-        .project({ userId: 1, companyName: 1 })
+        .project({ userId: 1, companyName: 1, verified: 1 })
         .toArray()
     : [];
-  const companyMap = new Map(
-    companyRows.map((row) => [row.userId.toString(), String(row.companyName ?? "Company")])
-  );
+  const companyMap = new Map(companyRows.map((row) => [row.userId.toString(), row]));
 
   return rows.map((row) => ({
     id: row._id.toString(),
     slug: String(row.slug ?? ""),
     title: formatInternshipTitle(String(row.title ?? "")),
-    companyName: companyMap.get(String(row.companyId ?? "")) ?? "Company",
+    companyName:
+      String(companyMap.get(String(row.companyId ?? ""))?.companyName ?? "Company"),
+    companyVerified: Boolean(companyMap.get(String(row.companyId ?? ""))?.verified),
     skillsRequired: Array.isArray(row.skillsRequired) ? row.skillsRequired.map(String) : [],
     level: String(row.level ?? ""),
     type: String(row.type ?? ""),

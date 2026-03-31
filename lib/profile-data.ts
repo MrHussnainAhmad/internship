@@ -13,7 +13,7 @@ export async function getProfileByUsername(args: {
   const username = args.username.trim().toLowerCase();
   const user = await db.collection("users").findOne(
     { username },
-    { projection: { _id: 1, name: 1, email: 1, username: 1, role: 1, image: 1, bio: 1 } }
+    { projection: { _id: 1, name: 1, email: 1, username: 1, role: 1, image: 1, bio: 1, companyVerified: 1 } }
   );
   if (!user) return null;
 
@@ -45,6 +45,15 @@ export async function getProfileByUsername(args: {
         .limit(100)
         .toArray(),
     ]);
+
+  const effectiveRole =
+    user.role === "student" || user.role === "company"
+      ? user.role
+      : companyProfile
+        ? "company"
+        : studentProfile
+          ? "student"
+          : "";
 
   const followerIds = followersRows
     .map((row) => row.fromUserId)
@@ -87,7 +96,8 @@ export async function getProfileByUsername(args: {
       name: String(user.name ?? ""),
       email: String(user.email ?? ""),
       username: String(user.username ?? ""),
-      role: String(user.role ?? ""),
+      role: effectiveRole,
+      companyVerified: Boolean(user.companyVerified),
       image: user.image ? String(user.image) : "",
       bio: user.bio ? String(user.bio) : "",
     },
@@ -119,6 +129,14 @@ export async function getProfileByUsername(args: {
           linkedinUrl: String(companyProfile.linkedinUrl ?? ""),
           twitterUrl: String(companyProfile.twitterUrl ?? ""),
           instagramUrl: String(companyProfile.instagramUrl ?? ""),
+          verified: Boolean(companyProfile.verified),
+          verifiedAt: companyProfile.verifiedAt
+            ? new Date(companyProfile.verifiedAt).toISOString()
+            : "",
+          domainEmail: String(companyProfile.domainEmail ?? ""),
+          proofLinks: Array.isArray(companyProfile.proofLinks)
+            ? companyProfile.proofLinks.map(String)
+            : [],
         }
       : null,
     followersCount,

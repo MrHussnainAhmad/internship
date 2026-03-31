@@ -6,6 +6,7 @@ type OpportunityItem = {
   slug: string;
   title: string;
   companyName: string;
+  companyVerified?: boolean;
   location: string;
   country: string;
   isRemote: boolean;
@@ -187,11 +188,11 @@ export async function getHomeSidebarData(args: {
     ? await db
         .collection("companyProfiles")
         .find({ userId: { $in: opportunityCompanyIds } })
-        .project({ userId: 1, companyName: 1 })
+        .project({ userId: 1, companyName: 1, verified: 1 })
         .toArray()
     : [];
   const opportunityCompanyMap = new Map(
-    opportunityCompanies.map((item) => [item.userId.toString(), String(item.companyName ?? "Company")])
+    opportunityCompanies.map((item) => [item.userId.toString(), item])
   );
 
   const opportunities: OpportunityItem[] = opportunityRows
@@ -203,7 +204,9 @@ export async function getHomeSidebarData(args: {
         id: row._id.toString(),
         slug: String(row.slug ?? ""),
         title: String(row.title ?? ""),
-        companyName: opportunityCompanyMap.get(String(row.companyId ?? "")) ?? "Company",
+        companyName:
+          String(opportunityCompanyMap.get(String(row.companyId ?? ""))?.companyName ?? "Company"),
+        companyVerified: Boolean(opportunityCompanyMap.get(String(row.companyId ?? ""))?.verified),
         location: String(row.location ?? ""),
         country: String(row.country ?? ""),
         isRemote: Boolean(row.isRemote),

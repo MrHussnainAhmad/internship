@@ -140,6 +140,18 @@ export async function ensureIndexes() {
           name: "profile_views_viewer_created_at_desc",
         },
       ]);
+
+      await db.collection("companyVerifications").createIndexes([
+        {
+          key: { userId: 1 },
+          unique: true,
+          name: "company_verifications_user_unique",
+        },
+        {
+          key: { otpExpiresAt: 1 },
+          name: "company_verifications_expiry",
+        },
+      ]);
     })();
   }
 

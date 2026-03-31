@@ -43,6 +43,7 @@ type FeedItemInternship = {
   level: string;
   isRemote: boolean;
   companyName: string;
+  companyVerified: boolean;
   skillsRequired: string[];
   matchedSkills: string[];
   matchPercent: number;
@@ -292,11 +293,11 @@ export async function queryHomeFeed(args: {
     ? await db
         .collection("companyProfiles")
         .find({ userId: { $in: companyIds } })
-        .project({ userId: 1, companyName: 1 })
+        .project({ userId: 1, companyName: 1, verified: 1 })
         .toArray()
     : [];
   const companyMap = new Map(
-    companyProfiles.map((company) => [company.userId.toString(), String(company.companyName ?? "Company")])
+    companyProfiles.map((company) => [company.userId.toString(), company])
   );
 
   const internshipItems: FeedItemInternship[] = internships
@@ -324,7 +325,12 @@ export async function queryHomeFeed(args: {
         type: String(internship.type ?? ""),
         level: String(internship.level ?? ""),
         isRemote: Boolean(internship.isRemote),
-        companyName: companyMap.get(String(internship.companyId ?? "")) ?? "Company",
+        companyName: String(
+          companyMap.get(String(internship.companyId ?? ""))?.companyName ?? "Company"
+        ),
+        companyVerified: Boolean(
+          companyMap.get(String(internship.companyId ?? ""))?.verified
+        ),
         skillsRequired: requiredSkills,
         matchedSkills,
         matchPercent,

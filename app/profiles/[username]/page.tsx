@@ -8,6 +8,8 @@ import { getProfileByUsername } from "@/lib/profile-data";
 import { ConnectButton } from "@/components/connect-button";
 import { StudentPostComposer } from "@/components/student-post-composer";
 import { FollowersFollowingPopup } from "@/components/followers-following-popup";
+import { VerifiedBadge } from "@/components/verified-badge";
+import { SocialIconLinks } from "@/components/social-icon-links";
 
 export default async function PublicProfilePage(props: {
   params: Promise<{ username: string }>;
@@ -51,18 +53,33 @@ export default async function PublicProfilePage(props: {
               <p className="mt-1 text-sm text-slate-600">
                 @{profile.user.username} ({profile.user.role})
               </p>
+              {profile.user.role === "company" && profile.companyProfile?.verified ? (
+                <div className="mt-1">
+                  <VerifiedBadge />
+                </div>
+              ) : null}
               {profile.user.bio ? (
                 <p className="mt-1 text-sm text-slate-700">{profile.user.bio}</p>
               ) : null}
             </div>
           </div>
           {isSelf ? (
-            <Link
-              href="/onboarding?edit=1"
-              className="text-sm font-semibold text-blue-700 hover:text-blue-900"
-            >
-              Edit profile
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/onboarding?edit=1"
+                className="text-sm font-semibold text-blue-700 hover:text-blue-900"
+              >
+                Edit profile
+              </Link>
+              {profile.user.role === "company" && !profile.companyProfile?.verified ? (
+                <Link
+                  href="/company/verify"
+                  className="text-sm font-semibold text-amber-700 hover:text-amber-900"
+                >
+                  Get Verified
+                </Link>
+              ) : null}
+            </div>
           ) : viewerId ? (
             <ConnectButton
               targetUserId={profile.user.id}
@@ -143,8 +160,9 @@ export default async function PublicProfilePage(props: {
           <dl className="mt-6 grid gap-4 sm:grid-cols-2">
             <div>
               <dt className="text-xs uppercase tracking-wide text-slate-500">Company</dt>
-              <dd className="text-sm text-slate-900">
-                {String(profile.companyProfile?.companyName ?? "-")}
+              <dd className="flex items-center gap-2 text-sm text-slate-900">
+                <span>{String(profile.companyProfile?.companyName ?? "-")}</span>
+                {profile.companyProfile?.verified ? <VerifiedBadge trustedLabel={false} /> : null}
               </dd>
             </div>
             <div>
@@ -175,24 +193,16 @@ export default async function PublicProfilePage(props: {
             <div className="sm:col-span-2">
               <dt className="text-xs uppercase tracking-wide text-slate-500">Links</dt>
               <dd className="mt-2 flex flex-wrap gap-2 text-sm">
-                {profile.companyProfile?.websiteUrl ? (
-                  <a href={profile.companyProfile.websiteUrl} target="_blank" rel="noreferrer" className="text-blue-700 hover:text-blue-900">Website</a>
-                ) : null}
-                {profile.companyProfile?.linkedinUrl ? (
-                  <a href={profile.companyProfile.linkedinUrl} target="_blank" rel="noreferrer" className="text-blue-700 hover:text-blue-900">LinkedIn</a>
-                ) : null}
-                {profile.companyProfile?.twitterUrl ? (
-                  <a href={profile.companyProfile.twitterUrl} target="_blank" rel="noreferrer" className="text-blue-700 hover:text-blue-900">Twitter</a>
-                ) : null}
-                {profile.companyProfile?.instagramUrl ? (
-                  <a href={profile.companyProfile.instagramUrl} target="_blank" rel="noreferrer" className="text-blue-700 hover:text-blue-900">Instagram</a>
-                ) : null}
-                {!profile.companyProfile?.websiteUrl &&
-                !profile.companyProfile?.linkedinUrl &&
-                !profile.companyProfile?.twitterUrl &&
-                !profile.companyProfile?.instagramUrl ? (
-                  <span className="text-slate-500">-</span>
-                ) : null}
+                {profile.companyProfile?.verified ? (
+                  <SocialIconLinks
+                    websiteUrl={profile.companyProfile.websiteUrl}
+                    linkedinUrl={profile.companyProfile.linkedinUrl}
+                    twitterUrl={profile.companyProfile.twitterUrl}
+                    instagramUrl={profile.companyProfile.instagramUrl}
+                  />
+                ) : (
+                  <span className="text-slate-500">Links are shown after company verification.</span>
+                )}
               </dd>
             </div>
           </dl>

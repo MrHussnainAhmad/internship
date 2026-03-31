@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { startTransition, useState } from "react";
 import { ApplyButton } from "@/components/apply-button";
+import { VerifiedBadge } from "@/components/verified-badge";
 
 type SimilarUser = {
   id: string;
@@ -20,6 +21,7 @@ type OpportunityItem = {
   slug: string;
   title: string;
   companyName: string;
+  companyVerified?: boolean;
   location: string;
   country: string;
   isRemote: boolean;
@@ -100,7 +102,10 @@ export function SidebarRight({
                     >
                       {item.title}
                     </Link>
-                    <p className="text-xs text-slate-600">{item.companyName}</p>
+                    <div className="flex items-center gap-1">
+                      <p className="text-xs text-slate-600">{item.companyName}</p>
+                      {item.companyVerified ? <VerifiedBadge trustedLabel={false} /> : null}
+                    </div>
                   </div>
                   <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">
                     {item.matchPercent}%

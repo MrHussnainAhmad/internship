@@ -5,6 +5,7 @@ import { startTransition, useEffect, useMemo, useState } from "react";
 import type { FeedItem } from "@/lib/feed";
 import { PostCard } from "@/components/PostCard";
 import { ApplyButton } from "@/components/apply-button";
+import { VerifiedBadge } from "@/components/verified-badge";
 
 type FeedProps = {
   initialItems: FeedItem[];
@@ -43,7 +44,10 @@ function InternshipCard({
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Internship</p>
           <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
-          <p className="text-sm text-slate-600">{item.companyName}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-slate-600">{item.companyName}</p>
+            {item.companyVerified ? <VerifiedBadge trustedLabel={false} /> : null}
+          </div>
         </div>
         <div className="text-right">
           <p
@@ -61,7 +65,7 @@ function InternshipCard({
 
       <p className="text-sm text-slate-700">
         {item.location}, {item.country}
-        {item.isRemote ? " ï¿½ Remote friendly" : ""}
+        {item.isRemote ? " • Remote friendly" : ""}
       </p>
       <p className="mt-2 line-clamp-2 text-sm text-slate-600">{item.description}</p>
 

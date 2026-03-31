@@ -27,10 +27,6 @@ const defaultCompany = {
   country: "Pakistan",
   isRemote: false,
   description: "",
-  websiteUrl: "",
-  linkedinUrl: "",
-  twitterUrl: "",
-  instagramUrl: "",
 };
 
 export function OnboardingForm() {
@@ -80,23 +76,21 @@ export function OnboardingForm() {
           setIsRoleLocked(true);
         }
 
-        if (existingRole === "company") {
-          const cRes = await fetch("/api/company");
-          const cJson = await cRes.json();
-          if (cJson.profile) {
-            setCompany({
-              companyName: cJson.profile.companyName ?? "",
-              industry: cJson.profile.industry ?? "",
-              location: cJson.profile.location ?? "",
-              country: cJson.profile.country ?? "Pakistan",
-              isRemote: Boolean(cJson.profile.isRemote),
-              description: cJson.profile.description ?? "",
-              websiteUrl: cJson.profile.websiteUrl ?? "",
-              linkedinUrl: cJson.profile.linkedinUrl ?? "",
-              twitterUrl: cJson.profile.twitterUrl ?? "",
-              instagramUrl: cJson.profile.instagramUrl ?? "",
-            });
-          }
+        const cRes = await fetch("/api/company");
+        const cJson = await cRes.json();
+        const hasCompanyProfile = Boolean(cJson.profile);
+
+        if ((existingRole === "company" || !existingRole) && hasCompanyProfile) {
+          setRole("company");
+          setIsRoleLocked(true);
+          setCompany({
+            companyName: cJson.profile.companyName ?? "",
+            industry: cJson.profile.industry ?? "",
+            location: cJson.profile.location ?? "",
+            country: cJson.profile.country ?? "Pakistan",
+            isRemote: Boolean(cJson.profile.isRemote),
+            description: cJson.profile.description ?? "",
+          });
         } else {
           const sRes = await fetch("/api/student");
           const sJson = await sRes.json();
@@ -197,24 +191,6 @@ export function OnboardingForm() {
             setResumeFile(null);
           }
         } else {
-          const companyLinkCount = [
-            company.websiteUrl,
-            company.linkedinUrl,
-            company.twitterUrl,
-            company.instagramUrl,
-          ].filter((value) => value.trim()).length;
-          if (companyLinkCount > 3) {
-            setMessage("Companies can add at most 3 links.");
-            return;
-          }
-          if (
-            company.websiteUrl.trim() &&
-            !company.websiteUrl.trim().startsWith("https://")
-          ) {
-            setMessage("Company website must start with https://");
-            return;
-          }
-
           const res = await fetch("/api/company", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -521,50 +497,10 @@ export function OnboardingForm() {
               maxLength={200}
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-            Website URL (optional, must start with https://)
-            <input
-              value={company.websiteUrl}
-              onChange={(event) =>
-                setCompany((prev) => ({ ...prev, websiteUrl: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-              placeholder="https://..."
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            LinkedIn URL (optional)
-            <input
-              value={company.linkedinUrl}
-              onChange={(event) =>
-                setCompany((prev) => ({ ...prev, linkedinUrl: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-              placeholder="https://..."
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            Twitter URL (optional)
-            <input
-              value={company.twitterUrl}
-              onChange={(event) =>
-                setCompany((prev) => ({ ...prev, twitterUrl: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-              placeholder="https://..."
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-            Instagram URL (optional)
-            <input
-              value={company.instagramUrl}
-              onChange={(event) =>
-                setCompany((prev) => ({ ...prev, instagramUrl: event.target.value }))
-              }
-              className="rounded-md border border-slate-300 px-3 py-2"
-              placeholder="https://..."
-            />
-          </label>
+          <div className="sm:col-span-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            Company links moved to <span className="font-semibold">Get Verified</span>.
+            Complete profile first, then verify from your profile page.
+          </div>
         </div>
       )}
 
