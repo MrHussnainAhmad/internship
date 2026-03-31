@@ -1,14 +1,13 @@
 "use client";
 
 import { FormEvent, startTransition, useState } from "react";
-import { useRouter } from "next/navigation";
+import { dispatchFeedPrependPost } from "@/lib/feed-events";
 
 type Props = {
   onPosted?: () => void;
 };
 
 export function StudentPostComposer({ onPosted }: Props) {
-  const router = useRouter();
   const [topic, setTopic] = useState("");
   const [content, setContent] = useState("");
   const [busy, setBusy] = useState(false);
@@ -36,7 +35,9 @@ export function StudentPostComposer({ onPosted }: Props) {
         setContent("");
         setMessage("Post published.");
         onPosted?.();
-        router.refresh();
+        if (data.feedItem) {
+          dispatchFeedPrependPost({ post: data.feedItem });
+        }
       } catch {
         setMessage("Could not publish post");
       } finally {

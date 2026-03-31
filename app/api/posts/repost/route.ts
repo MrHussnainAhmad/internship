@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getApiUser } from "@/lib/api-auth";
 import { getDb } from "@/lib/db";
+import { toPublicPostId } from "@/lib/post-id";
 
 const schema = z
   .discriminatedUnion("kind", [
@@ -42,6 +43,50 @@ function buildRepostContent(input: {
 
   const joined = lines.join("\n");
   return trimWithEllipsis(joined, 800);
+}
+
+function buildFeedItem(params: {
+  id: ObjectId;
+  createdAt: Date;
+  topic: string;
+  content: string;
+  author: {
+    id: ObjectId;
+    name?: string;
+    username?: string;
+    role?: string;
+    image?: string;
+  };
+  repost: {
+    kind: "post" | "internship";
+    sourcePath: string;
+    originalAuthorName?: string;
+    originalAuthorUsername?: string;
+  };
+}) {
+  return {
+    id: params.id.toString(),
+    publicId: toPublicPostId(params.id.toString()),
+    kind: "post" as const,
+    section: "normal_posts" as const,
+    createdAt: params.createdAt.toISOString(),
+    topic: params.topic,
+    content: params.content,
+    likesCount: 0,
+    commentsCount: 0,
+    shareCount: 0,
+    likedByViewer: false,
+    repost: params.repost,
+    author: {
+      id: params.author.id.toString(),
+      name: String(params.author.name ?? ""),
+      username: String(params.author.username ?? ""),
+      role: String(params.author.role ?? ""),
+      image: String(params.author.image ?? ""),
+      isFollowing: false,
+      canFollow: false,
+    },
+  };
 }
 
 export async function POST(request: Request) {
@@ -85,7 +130,7 @@ export async function POST(request: Request) {
       ? `${post.topic} by ${authorName}`
       : `Post by ${authorName}`;
     const sourceSummary = trimWithEllipsis(String(post.content ?? "").trim(), 220);
-    const sourcePath = `/posts/${post._id.toString()}`;
+    const sourcePath = `/posts/${toPublicPostId(post._id.toString())}`;
     const topic = trimWithEllipsis(`Repost: ${String(post.topic ?? "Post").trim() || "Post"}`, 80);
 
     const content = buildRepostContent({
@@ -117,6 +162,25 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ok: true,
       repostId: result.insertedId.toString(),
+      feedItem: buildFeedItem({
+        id: result.insertedId,
+        createdAt: now,
+        topic,
+        content,
+        author: {
+          id: currentUser._id,
+          name: currentUser.name,
+          username: currentUser.username,
+          role: currentUser.role,
+          image: currentUser.image,
+        },
+        repost: {
+          kind: "post",
+          sourcePath,
+          originalAuthorName: authorName,
+          originalAuthorUsername: authorUsername,
+        },
+      }),
     });
   }
 
@@ -159,5 +223,22 @@ export async function POST(request: Request) {
   return NextResponse.json({
     ok: true,
     repostId: result.insertedId.toString(),
+    feedItem: buildFeedItem({
+      id: result.insertedId,
+      createdAt: now,
+      topic,
+      content,
+      author: {
+        id: currentUser._id,
+        name: currentUser.name,
+        username: currentUser.username,
+        role: currentUser.role,
+        image: currentUser.image,
+      },
+      repost: {
+        kind: "internship",
+        sourcePath,
+      },
+    }),
   });
 }

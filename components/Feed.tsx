@@ -7,6 +7,7 @@ import { PostCard } from "@/components/PostCard";
 import { ApplyButton } from "@/components/apply-button";
 import { ShareMenu } from "@/components/share-menu";
 import { VerifiedBadge } from "@/components/verified-badge";
+import { FEED_PREPEND_POST_EVENT, type FeedPrependPostDetail } from "@/lib/feed-events";
 
 type FeedProps = {
   initialItems: FeedItem[];
@@ -117,6 +118,9 @@ function InternshipCard({
 
 export function Feed({ initialItems, initialHasMore, initialPage, viewerRole }: FeedProps) {
   const [items, setItems] = useState(initialItems);
+  const [pinnedPosts, setPinnedPosts] = useState<Extract<FeedItem, { kind: "post" }>[]>( 
+    []
+  );
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [page, setPage] = useState(initialPage);
   const [loading, setLoading] = useState(false);
@@ -124,10 +128,39 @@ export function Feed({ initialItems, initialHasMore, initialPage, viewerRole }: 
 
   useEffect(() => {
     setItems(initialItems);
+    setPinnedPosts([]);
     setHasMore(initialHasMore);
     setPage(initialPage);
     setError("");
   }, [initialItems, initialHasMore, initialPage]);
+
+  useEffect(() => {
+    const onPrepend = (event: Event) => {
+      const custom = event as CustomEvent<FeedPrependPostDetail>;
+      const post = custom.detail?.post;
+      if (!post) return;
+      setPinnedPosts((previous) => {
+        const next = [post, ...previous.filter((item) => item.id !== post.id)];
+        return next.slice(0, 3);
+      });
+      setItems((previous) => {
+        if (previous.some((item) => item.kind === "post" && item.id === post.id)) {
+          return previous;
+        }
+        return [post, ...previous];
+      });
+    };
+
+    window.addEventListener(FEED_PREPEND_POST_EVENT, onPrepend as EventListener);
+    return () => {
+      window.removeEventListener(FEED_PREPEND_POST_EVENT, onPrepend as EventListener);
+    };
+  }, []);
+
+  const pinnedPostIdSet = useMemo(
+    () => new Set(pinnedPosts.map((post) => post.id)),
+    [pinnedPosts]
+  );
 
   const grouped = useMemo(() => {
     const highMatch = items.filter(
@@ -199,7 +232,11 @@ export function Feed({ initialItems, initialHasMore, initialPage, viewerRole }: 
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
             Feed
           </h2>
+          {pinnedPosts.map((item) => (
+            <PostCard key={`pinned-${item.id}`} item={item} />
+          ))}
           {companyMixed.map((item) =>
+            item.kind === "post" && pinnedPostIdSet.has(item.id) ? null :
             item.kind === "post" ? (
               <PostCard key={`${item.kind}-${item.id}`} item={item} />
             ) : (
@@ -232,6 +269,17 @@ export function Feed({ initialItems, initialHasMore, initialPage, viewerRole }: 
 
   return (
     <section className="space-y-5">
+      {pinnedPosts.length > 0 ? (
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
+            Just Posted
+          </h2>
+          {pinnedPosts.map((item) => (
+            <PostCard key={`pinned-${item.id}`} item={item} />
+          ))}
+        </div>
+      ) : null}
+
       <div className="space-y-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
           High Match Internships
@@ -288,7 +336,9 @@ export function Feed({ initialItems, initialHasMore, initialPage, viewerRole }: 
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
           Normal Posts
         </h2>
-        {grouped.posts.map((item) => (
+        {grouped.posts
+          .filter((item) => !pinnedPostIdSet.has(item.id))
+          .map((item) => (
           <PostCard key={`${item.kind}-${item.id}`} item={item} />
         ))}
       </div>

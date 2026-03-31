@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { dispatchFeedPrependPost } from "@/lib/feed-events";
 import { toAbsoluteUrl } from "@/lib/site-url";
 
 type RepostTarget =
@@ -16,11 +17,48 @@ type ShareMenuProps = {
   onError?: (message: string) => void;
 };
 
-function ActionIcon({ children }: { children: string }) {
+function RepostIcon() {
   return (
-    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-[11px] font-semibold text-slate-700">
-      {children}
-    </span>
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M17 1v4H7" />
+      <path d="m3 5 4-4 4 4" />
+      <path d="M7 23v-4h10" />
+      <path d="m21 19-4 4-4-4" />
+    </svg>
+  );
+}
+
+function WhatsappIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+      <path d="M17.5 14.4c-.3-.2-1.7-.8-2-.9-.3-.1-.5-.2-.7.2-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.2-.4-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.5-.6c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.7-1-2.3-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.3-.2.3-1 1-.9 2.4 0 1.4 1 2.8 1.2 2.9.2.2 2 3.2 4.9 4.4 2.8 1.2 2.8.8 3.3.8s1.7-.7 1.9-1.3c.2-.6.2-1.2.1-1.3 0-.2-.2-.2-.5-.4Z" />
+      <path d="M20.5 3.5A11.4 11.4 0 0 0 2.6 17.2L1 23l6-1.5a11.4 11.4 0 0 0 5 1.1h.1a11.4 11.4 0 0 0 8.4-19Zm-8.4 17.2a9.6 9.6 0 0 1-4.8-1.3l-.4-.2-3.5.9.9-3.4-.2-.4a9.5 9.5 0 1 1 8 4.4Z" />
+    </svg>
+  );
+}
+
+function LinkedInIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+      <path d="M4.98 3.5A2.5 2.5 0 1 0 5 8.5a2.5 2.5 0 0 0-.02-5ZM3 9h4v12H3zM10 9h3.8v1.7h.1c.5-.9 1.8-1.9 3.7-1.9 4 0 4.7 2.6 4.7 6V21h-4v-5.5c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9V21h-4z" />
+    </svg>
+  );
+}
+
+function XIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+      <path d="M18.9 2H22l-6.8 7.8L23 22h-6.2l-4.9-6.5L6.2 22H3l7.3-8.4L1 2h6.4l4.4 5.9L18.9 2Zm-1.1 18h1.7L6.5 3.8H4.7L17.8 20Z" />
+    </svg>
+  );
+}
+
+function LinkIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M10 13a5 5 0 0 0 7.1 0l2.8-2.8a5 5 0 0 0-7.1-7.1L10 5" />
+      <path d="M14 11a5 5 0 0 0-7.1 0l-2.8 2.8a5 5 0 0 0 7.1 7.1L14 19" />
+    </svg>
   );
 }
 
@@ -157,6 +195,9 @@ export function ShareMenu({
       setRepostOpen(false);
       setMenuOpen(false);
       setFeedback("Reposted to your profile.");
+      if (data.feedItem) {
+        dispatchFeedPrependPost({ post: data.feedItem });
+      }
       await trackShare();
     } catch {
       onError?.("Could not repost");
@@ -164,6 +205,9 @@ export function ShareMenu({
       setBusy(false);
     }
   };
+
+  const actionClass =
+    "flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-slate-700 hover:bg-slate-100";
 
   return (
     <div ref={wrapperRef} className="relative">
@@ -193,9 +237,11 @@ export function ShareMenu({
                 setMenuOpen(false);
                 setRepostOpen(true);
               }}
-              className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-slate-700 hover:bg-slate-100"
+              className={actionClass}
             >
-              <ActionIcon>RP</ActionIcon>
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-700">
+                <RepostIcon />
+              </span>
               Repost
             </button>
           ) : null}
@@ -203,36 +249,44 @@ export function ShareMenu({
           <button
             type="button"
             onClick={shareToWhatsApp}
-            className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-slate-700 hover:bg-slate-100"
+            className={actionClass}
           >
-            <ActionIcon>WA</ActionIcon>
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+              <WhatsappIcon />
+            </span>
             Share via WhatsApp
           </button>
 
           <button
             type="button"
             onClick={shareToLinkedIn}
-            className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-slate-700 hover:bg-slate-100"
+            className={actionClass}
           >
-            <ActionIcon>in</ActionIcon>
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-700">
+              <LinkedInIcon />
+            </span>
             Share via LinkedIn
           </button>
 
           <button
             type="button"
             onClick={shareToX}
-            className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-slate-700 hover:bg-slate-100"
+            className={actionClass}
           >
-            <ActionIcon>X</ActionIcon>
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-900">
+              <XIcon />
+            </span>
             Share via X
           </button>
 
           <button
             type="button"
             onClick={copyLink}
-            className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-slate-700 hover:bg-slate-100"
+            className={actionClass}
           >
-            <ActionIcon>CP</ActionIcon>
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-700">
+              <LinkIcon />
+            </span>
             Copy link
           </button>
         </div>

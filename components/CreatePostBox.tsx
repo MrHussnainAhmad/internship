@@ -1,10 +1,9 @@
 "use client";
 
 import { FormEvent, startTransition, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { dispatchFeedPrependPost } from "@/lib/feed-events";
 
 export function CreatePostBox() {
-  const router = useRouter();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [topic, setTopic] = useState("");
@@ -56,7 +55,9 @@ export function CreatePostBox() {
         setTopic("");
         setContent("");
         setOpen(false);
-        router.refresh();
+        if (data.feedItem) {
+          dispatchFeedPrependPost({ post: data.feedItem });
+        }
       } catch {
         setError("Could not publish post");
       } finally {

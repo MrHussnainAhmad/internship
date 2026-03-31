@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FormEvent, startTransition, useEffect, useMemo, useState } from "react";
 import type { FeedItem } from "@/lib/feed";
 import { ShareMenu } from "@/components/share-menu";
+import { FEED_PREPEND_POST_EVENT, type FeedPrependPostDetail } from "@/lib/feed-events";
 
 type Props = {
   initialItems: FeedItem[];
@@ -250,9 +251,36 @@ function PostCard({ item }: { item: Extract<FeedItem, { kind: "post" }> }) {
   };
 
   const rootComments = commentsByParent.get("root") ?? [];
+  const repostSourceLabel =
+    item.repost?.kind === "post"
+      ? item.repost.originalAuthorUsername
+        ? `Original post by @${item.repost.originalAuthorUsername}`
+        : item.repost.originalAuthorName
+          ? `Original post by ${item.repost.originalAuthorName}`
+          : "Original post"
+      : item.repost?.kind === "internship"
+        ? "Original internship"
+        : "";
 
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      {item.repost?.sourcePath ? (
+        <div className="mb-3 flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+          <span className="inline-flex items-center gap-1.5 font-semibold text-slate-700">
+            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M17 1v4H7" />
+              <path d="m3 5 4-4 4 4" />
+              <path d="M7 23v-4h10" />
+              <path d="m21 19-4 4-4-4" />
+            </svg>
+            Reposted
+          </span>
+          <Link href={item.repost.sourcePath} className="text-blue-700 hover:text-blue-900">
+            {repostSourceLabel}
+          </Link>
+        </div>
+      ) : null}
+
       <div className="mb-2 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Avatar name={item.author.name} image={item.author.image} size={42} />
@@ -314,7 +342,7 @@ function PostCard({ item }: { item: Extract<FeedItem, { kind: "post" }> }) {
           Comment
         </button>
         <ShareMenu
-          sharePath={`/posts/${item.id}`}
+          sharePath={`/posts/${item.publicId}`}
           title={item.topic || "Post"}
           description={item.content}
           repostTarget={{ kind: "post", postId: item.id }}
@@ -508,6 +536,25 @@ export function HomeFeed({
     setHasMore(initialHasMore);
     setError("");
   }, [initialItems, initialPage, initialHasMore]);
+
+  useEffect(() => {
+    const onPrepend = (event: Event) => {
+      const custom = event as CustomEvent<FeedPrependPostDetail>;
+      const post = custom.detail?.post;
+      if (!post) return;
+      setItems((previous) => {
+        if (previous.some((item) => item.kind === "post" && item.id === post.id)) {
+          return previous;
+        }
+        return [post, ...previous];
+      });
+    };
+
+    window.addEventListener(FEED_PREPEND_POST_EVENT, onPrepend as EventListener);
+    return () => {
+      window.removeEventListener(FEED_PREPEND_POST_EVENT, onPrepend as EventListener);
+    };
+  }, []);
 
   const loadMore = () => {
     if (loading || !hasMore) return;

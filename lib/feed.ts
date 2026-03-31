@@ -1,6 +1,7 @@
 ﻿import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/db";
 import { formatInternshipTitle } from "@/lib/format";
+import { toPublicPostId } from "@/lib/post-id";
 
 type FeedSection =
   | "high_match_internships"
@@ -9,6 +10,7 @@ type FeedSection =
 
 type FeedItemPost = {
   id: string;
+  publicId: string;
   kind: "post";
   section: "normal_posts";
   createdAt: string;
@@ -18,6 +20,12 @@ type FeedItemPost = {
   commentsCount: number;
   shareCount: number;
   likedByViewer: boolean;
+  repost?: {
+    kind: "post" | "internship";
+    sourcePath: string;
+    originalAuthorName: string | undefined;
+    originalAuthorUsername: string | undefined;
+  };
   author: {
     id: string;
     name: string;
@@ -207,6 +215,7 @@ export async function queryHomeFeed(args: {
       likes: 1,
       commentsCount: 1,
       shareCount: 1,
+      repost: 1,
       createdAt: 1,
     })
     .sort({ createdAt: -1 })
@@ -226,12 +235,12 @@ export async function queryHomeFeed(args: {
     : [];
   const authorMap = new Map(authors.map((author) => [author._id.toString(), author]));
 
-  const postItems: FeedItemPost[] = posts
-    .map((post) => {
+  const postItems: FeedItemPost[] = posts.reduce<FeedItemPost[]>((items, post) => {
       const author = authorMap.get(String(post.authorId ?? ""));
-      if (!author) return null;
-      return {
+      if (!author) return items;
+      items.push({
         id: post._id.toString(),
+        publicId: toPublicPostId(post._id.toString()),
         kind: "post" as const,
         section: "normal_posts" as const,
         createdAt: new Date(post.createdAt ?? Date.now()).toISOString(),
@@ -243,6 +252,20 @@ export async function queryHomeFeed(args: {
         likedByViewer: Array.isArray(post.likes)
           ? post.likes.some((id) => String(id) === args.viewerId)
           : false,
+        repost:
+          post.repost && typeof post.repost === "object"
+            ? {
+                kind:
+                  post.repost.kind === "internship" ? "internship" : "post",
+                sourcePath: String(post.repost.sourcePath ?? ""),
+                originalAuthorName: post.repost.originalAuthorName
+                  ? String(post.repost.originalAuthorName)
+                  : undefined,
+                originalAuthorUsername: post.repost.originalAuthorUsername
+                  ? String(post.repost.originalAuthorUsername)
+                  : undefined,
+              }
+            : undefined,
         author: {
           id: author._id.toString(),
           name: String(author.name ?? ""),
@@ -254,9 +277,9 @@ export async function queryHomeFeed(args: {
             author._id.toString() !== args.viewerId &&
             !followingIdSet.has(author._id.toString()),
         },
-      };
-    })
-    .filter((item): item is FeedItemPost => item !== null);
+      });
+      return items;
+    }, []);
 
   const internships =
     viewerSkills.length === 0

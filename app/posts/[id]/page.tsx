@@ -3,15 +3,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/db";
+import { toObjectIdFromPublicPostId, toPublicPostId } from "@/lib/post-id";
 import { toAbsoluteUrl } from "@/lib/site-url";
 
 type Params = { id: string };
 
 async function getPostById(id: string) {
-  if (!ObjectId.isValid(id)) return null;
+  const resolvedId = toObjectIdFromPublicPostId(id);
+  if (!resolvedId || !ObjectId.isValid(resolvedId)) return null;
 
   const db = await getDb();
-  const postId = new ObjectId(id);
+  const postId = new ObjectId(resolvedId);
   const post = await db.collection("posts").findOne(
     { _id: postId },
     { projection: { _id: 1, authorId: 1, topic: 1, content: 1, createdAt: 1 } }
@@ -29,6 +31,7 @@ async function getPostById(id: string) {
 
   return {
     id: post._id.toString(),
+    publicId: toPublicPostId(post._id.toString()),
     topic: String(post.topic ?? ""),
     content: String(post.content ?? ""),
     createdAt: new Date(post.createdAt ?? Date.now()).toISOString(),
@@ -59,7 +62,7 @@ export async function generateMetadata(props: {
     ? `${post.topic} - @${post.author.username || "user"}`
     : `Post by ${post.author.name}`;
   const description = clip(post.content, 220);
-  const canonical = `/posts/${post.id}`;
+  const canonical = `/posts/${post.publicId}`;
   const imageUrl = post.author.image || undefined;
 
   return {

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getApiUser } from "@/lib/api-auth";
 import { getDb } from "@/lib/db";
 import { ensureIndexes } from "@/lib/indexes";
+import { toPublicPostId } from "@/lib/post-id";
 
 const postSchema = z.object({
   content: z.string().trim().min(3).max(800),
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     posts: posts.map((post) => ({
       id: post._id.toString(),
+      publicId: toPublicPostId(post._id.toString()),
       content: String(post.content ?? ""),
       topic: String(post.topic ?? ""),
       createdAt: new Date(post.createdAt ?? Date.now()).toISOString(),
@@ -86,7 +88,30 @@ export async function POST(request: Request) {
     ok: true,
     post: {
       id: insertedId.toString(),
+      publicId: toPublicPostId(insertedId.toString()),
       createdAt: now.toISOString(),
+    },
+    feedItem: {
+      id: insertedId.toString(),
+      publicId: toPublicPostId(insertedId.toString()),
+      kind: "post",
+      section: "normal_posts",
+      createdAt: now.toISOString(),
+      topic: normalizedTopic,
+      content: parsed.data.content,
+      likesCount: 0,
+      commentsCount: 0,
+      shareCount: 0,
+      likedByViewer: false,
+      author: {
+        id: user._id.toString(),
+        name: String(user.name ?? ""),
+        username: String(user.username ?? ""),
+        role: String(user.role ?? ""),
+        image: String(user.image ?? ""),
+        isFollowing: false,
+        canFollow: false,
+      },
     },
   });
 }
