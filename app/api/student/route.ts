@@ -3,6 +3,8 @@ import { z } from "zod";
 import { getApiUser } from "@/lib/api-auth";
 import { getDb } from "@/lib/db";
 
+const optionalUrlField = z.string().trim().url().optional().or(z.literal(""));
+
 const schema = z.object({
   skills: z.array(z.string().trim().min(1)).max(10),
   level: z.enum(["beginner", "intermediate", "advanced"]),
@@ -13,6 +15,25 @@ const schema = z.object({
   country: z.string().trim().min(2).max(60).default("Pakistan"),
   preferredType: z.enum(["paid", "unpaid", "learn_and_earn"]),
   resumeUrl: z.string().trim().url().min(1),
+  portfolioUrl: optionalUrlField,
+  linkedinUrl: optionalUrlField,
+  twitterUrl: optionalUrlField,
+  instagramUrl: optionalUrlField,
+}).superRefine((value, ctx) => {
+  const linkCount = [
+    value.portfolioUrl,
+    value.linkedinUrl,
+    value.twitterUrl,
+    value.instagramUrl,
+  ].filter((item) => String(item ?? "").trim()).length;
+
+  if (linkCount > 3) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "You can add at most 3 links.",
+      path: ["portfolioUrl"],
+    });
+  }
 });
 
 export async function GET(request: Request) {
@@ -34,6 +55,10 @@ export async function GET(request: Request) {
       country: profile.country ?? "Pakistan",
       preferredType: profile.preferredType ?? "paid",
       resumeUrl: profile.resumeUrl ?? "",
+      portfolioUrl: profile.portfolioUrl ?? "",
+      linkedinUrl: profile.linkedinUrl ?? "",
+      twitterUrl: profile.twitterUrl ?? "",
+      instagramUrl: profile.instagramUrl ?? "",
     },
   });
 }

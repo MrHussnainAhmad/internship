@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "node ./scripts/next-cli-with-readlink-patch.cjs dev --webpack",
     "dev:turbopack": "next dev",
-    "build": "next build --webpack",
+    "build": "node ./scripts/next-cli-with-readlink-patch.cjs build --webpack",
     "start": "next start",
     "lint": "eslint"
   },
@@ -17,6 +17,7 @@
     "next-auth": "^4.24.13",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "sharp": "^0.34.5",
     "slugify": "^1.6.8",
     "zod": "^4.3.6"
   },

@@ -47,6 +47,7 @@ export function NotificationsClient({
         setUnreadCount((value) => value + 1);
         return false;
       }
+      router.refresh();
       return true;
     } catch {
       setItems((prev) =>
@@ -77,6 +78,8 @@ export function NotificationsClient({
           setItems(previous);
           setUnreadCount(previous.filter((item) => !item.isRead).length);
           setError("Could not mark all read");
+        } else {
+          router.refresh();
         }
       } catch {
         setItems(previous);

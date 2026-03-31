@@ -12,6 +12,7 @@ type InternshipFilters = {
   paid?: string;
   page?: string;
   limit?: string;
+  excludeAppliedForStudentId?: string;
 };
 
 type InternshipListItem = {
@@ -117,6 +118,25 @@ export async function queryInternships(
     andClauses.push({
       $or: [{ location: locationQuery }, { country: locationQuery }, { isRemote: true }],
     });
+  }
+
+  if (filters.excludeAppliedForStudentId && ObjectId.isValid(filters.excludeAppliedForStudentId)) {
+    const appliedInternshipIds = await db
+      .collection("applications")
+      .find(
+        { studentId: new ObjectId(filters.excludeAppliedForStudentId) },
+        { projection: { internshipId: 1 } }
+      )
+      .toArray()
+      .then((rows) =>
+        rows
+          .map((row) => row.internshipId)
+          .filter((id): id is ObjectId => id instanceof ObjectId)
+      );
+
+    if (appliedInternshipIds.length > 0) {
+      andClauses.push({ _id: { $nin: appliedInternshipIds } });
+    }
   }
 
   const where = andClauses.length > 0 ? { $and: andClauses } : {};
@@ -257,6 +277,7 @@ export async function getRelatedInternships(args: {
   skillsRequired: string[];
   location: string;
   limit?: number;
+  excludeInternshipIds?: string[];
 }) {
   const db = await getDb();
   const limit = Math.min(8, Math.max(1, args.limit ?? 4));
@@ -264,6 +285,12 @@ export async function getRelatedInternships(args: {
   const where: Record<string, unknown> = {
     _id: { $ne: new ObjectId(args.internshipId) },
   };
+  const excludeIds = (args.excludeInternshipIds ?? [])
+    .filter((value) => ObjectId.isValid(value))
+    .map((value) => new ObjectId(value));
+  if (excludeIds.length > 0) {
+    where._id = { $nin: [new ObjectId(args.internshipId), ...excludeIds] };
+  }
   const conditions: Record<string, unknown>[] = [];
 
   if (args.skillsRequired.length > 0) {

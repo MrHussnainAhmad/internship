@@ -51,6 +51,9 @@ export default async function PublicProfilePage(props: {
               <p className="mt-1 text-sm text-slate-600">
                 @{profile.user.username} ({profile.user.role})
               </p>
+              {profile.user.bio ? (
+                <p className="mt-1 text-sm text-slate-700">{profile.user.bio}</p>
+              ) : null}
             </div>
           </div>
           {isSelf ? (
@@ -112,6 +115,29 @@ export default async function PublicProfilePage(props: {
                 ))}
               </dd>
             </div>
+            <div className="sm:col-span-2">
+              <dt className="text-xs uppercase tracking-wide text-slate-500">Links</dt>
+              <dd className="mt-2 flex flex-wrap gap-2 text-sm">
+                {profile.studentProfile?.portfolioUrl ? (
+                  <a href={profile.studentProfile.portfolioUrl} target="_blank" rel="noreferrer" className="text-blue-700 hover:text-blue-900">Portfolio</a>
+                ) : null}
+                {profile.studentProfile?.linkedinUrl ? (
+                  <a href={profile.studentProfile.linkedinUrl} target="_blank" rel="noreferrer" className="text-blue-700 hover:text-blue-900">LinkedIn</a>
+                ) : null}
+                {profile.studentProfile?.twitterUrl ? (
+                  <a href={profile.studentProfile.twitterUrl} target="_blank" rel="noreferrer" className="text-blue-700 hover:text-blue-900">Twitter</a>
+                ) : null}
+                {profile.studentProfile?.instagramUrl ? (
+                  <a href={profile.studentProfile.instagramUrl} target="_blank" rel="noreferrer" className="text-blue-700 hover:text-blue-900">Instagram</a>
+                ) : null}
+                {!profile.studentProfile?.portfolioUrl &&
+                !profile.studentProfile?.linkedinUrl &&
+                !profile.studentProfile?.twitterUrl &&
+                !profile.studentProfile?.instagramUrl ? (
+                  <span className="text-slate-500">-</span>
+                ) : null}
+              </dd>
+            </div>
           </dl>
         ) : (
           <dl className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -144,6 +170,29 @@ export default async function PublicProfilePage(props: {
               <dt className="text-xs uppercase tracking-wide text-slate-500">Description</dt>
               <dd className="mt-2 rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
                 {String(profile.companyProfile?.description ?? "-")}
+              </dd>
+            </div>
+            <div className="sm:col-span-2">
+              <dt className="text-xs uppercase tracking-wide text-slate-500">Links</dt>
+              <dd className="mt-2 flex flex-wrap gap-2 text-sm">
+                {profile.companyProfile?.websiteUrl ? (
+                  <a href={profile.companyProfile.websiteUrl} target="_blank" rel="noreferrer" className="text-blue-700 hover:text-blue-900">Website</a>
+                ) : null}
+                {profile.companyProfile?.linkedinUrl ? (
+                  <a href={profile.companyProfile.linkedinUrl} target="_blank" rel="noreferrer" className="text-blue-700 hover:text-blue-900">LinkedIn</a>
+                ) : null}
+                {profile.companyProfile?.twitterUrl ? (
+                  <a href={profile.companyProfile.twitterUrl} target="_blank" rel="noreferrer" className="text-blue-700 hover:text-blue-900">Twitter</a>
+                ) : null}
+                {profile.companyProfile?.instagramUrl ? (
+                  <a href={profile.companyProfile.instagramUrl} target="_blank" rel="noreferrer" className="text-blue-700 hover:text-blue-900">Instagram</a>
+                ) : null}
+                {!profile.companyProfile?.websiteUrl &&
+                !profile.companyProfile?.linkedinUrl &&
+                !profile.companyProfile?.twitterUrl &&
+                !profile.companyProfile?.instagramUrl ? (
+                  <span className="text-slate-500">-</span>
+                ) : null}
               </dd>
             </div>
           </dl>

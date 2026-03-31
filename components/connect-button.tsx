@@ -7,6 +7,9 @@ type Props = {
   initialConnected: boolean;
   initialFollowersCount: number;
   initialFollowingCount: number;
+  className?: string;
+  compact?: boolean;
+  showCounts?: boolean;
 };
 
 export function ConnectButton({
@@ -14,6 +17,9 @@ export function ConnectButton({
   initialConnected,
   initialFollowersCount,
   initialFollowingCount,
+  className = "",
+  compact = false,
+  showCounts = true,
 }: Props) {
   const [connected, setConnected] = useState(initialConnected);
   const [followersCount, setFollowersCount] = useState(initialFollowersCount);
@@ -69,14 +75,20 @@ export function ConnectButton({
   };
 
   return (
-    <div className="flex flex-col items-start gap-2">
+    <div className={`flex flex-col items-start gap-2 ${className}`}>
       <button
         type="button"
         onClick={toggle}
         title={busy ? "Updating connection" : connected ? "Connected" : "Connect"}
         aria-label={busy ? "Updating connection" : connected ? "Connected" : "Connect"}
         disabled={busy}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-blue-700 text-white hover:bg-blue-800 disabled:opacity-60"
+        className={`inline-flex items-center justify-center gap-1.5 rounded-md font-semibold transition disabled:opacity-60 ${
+          compact ? "h-8 px-2.5 text-xs" : "h-9 px-3 text-sm"
+        } ${
+          connected
+            ? "border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+            : "bg-blue-700 text-white hover:bg-blue-800"
+        }`}
       >
         {busy ? (
           <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2">
@@ -92,13 +104,16 @@ export function ConnectButton({
             <path d="M12 5v14M5 12h14" />
           </svg>
         )}
+        <span>{busy ? "Updating..." : connected ? "Connected" : "Connect"}</span>
         <span className="sr-only">
           {busy ? "Updating connection" : connected ? "Connected" : "Connect"}
         </span>
       </button>
-      <p className="text-xs text-slate-600">
-        Followers: {followersCount} • Following: {followingCount}
-      </p>
+      {showCounts ? (
+        <p className="text-xs text-slate-600">
+          Followers: {followersCount} | Following: {followingCount}
+        </p>
+      ) : null}
       {error ? <p className="text-xs text-red-600">{error}</p> : null}
     </div>
   );

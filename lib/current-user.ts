@@ -18,6 +18,7 @@ export async function getCurrentUser() {
         username: 1,
         role: 1,
         image: 1,
+        bio: 1,
       },
     }
   );

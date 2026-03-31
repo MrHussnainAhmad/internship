@@ -3,6 +3,16 @@ import { z } from "zod";
 import { getApiUser } from "@/lib/api-auth";
 import { getDb } from "@/lib/db";
 
+const optionalUrlField = z.string().trim().url().optional().or(z.literal(""));
+const websiteUrlField = z
+  .string()
+  .trim()
+  .optional()
+  .or(z.literal(""))
+  .refine((value) => !value || value.startsWith("https://"), {
+    message: "Website must start with https://",
+  });
+
 const schema = z.object({
   companyName: z.string().trim().min(2).max(80),
   industry: z.string().trim().min(2).max(80),
@@ -10,6 +20,25 @@ const schema = z.object({
   country: z.string().trim().min(2).max(60).default("Pakistan"),
   isRemote: z.boolean(),
   description: z.string().trim().min(10).max(200),
+  websiteUrl: websiteUrlField,
+  linkedinUrl: optionalUrlField,
+  twitterUrl: optionalUrlField,
+  instagramUrl: optionalUrlField,
+}).superRefine((value, ctx) => {
+  const linkCount = [
+    value.websiteUrl,
+    value.linkedinUrl,
+    value.twitterUrl,
+    value.instagramUrl,
+  ].filter((item) => String(item ?? "").trim()).length;
+
+  if (linkCount > 3) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "You can add at most 3 links.",
+      path: ["websiteUrl"],
+    });
+  }
 });
 
 export async function GET(request: Request) {
@@ -30,6 +59,10 @@ export async function GET(request: Request) {
       country: profile.country ?? "Pakistan",
       isRemote: Boolean(profile.isRemote),
       description: profile.description ?? "",
+      websiteUrl: profile.websiteUrl ?? "",
+      linkedinUrl: profile.linkedinUrl ?? "",
+      twitterUrl: profile.twitterUrl ?? "",
+      instagramUrl: profile.instagramUrl ?? "",
     },
   });
 }

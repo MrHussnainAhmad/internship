@@ -13,7 +13,7 @@ export async function getProfileByUsername(args: {
   const username = args.username.trim().toLowerCase();
   const user = await db.collection("users").findOne(
     { username },
-    { projection: { _id: 1, name: 1, email: 1, username: 1, role: 1, image: 1 } }
+    { projection: { _id: 1, name: 1, email: 1, username: 1, role: 1, image: 1, bio: 1 } }
   );
   if (!user) return null;
 
@@ -89,6 +89,7 @@ export async function getProfileByUsername(args: {
       username: String(user.username ?? ""),
       role: String(user.role ?? ""),
       image: user.image ? String(user.image) : "",
+      bio: user.bio ? String(user.bio) : "",
     },
     studentProfile: studentProfile
       ? {
@@ -100,6 +101,10 @@ export async function getProfileByUsername(args: {
           skills: Array.isArray(studentProfile.skills)
             ? studentProfile.skills.map(String)
             : [],
+          portfolioUrl: String(studentProfile.portfolioUrl ?? ""),
+          linkedinUrl: String(studentProfile.linkedinUrl ?? ""),
+          twitterUrl: String(studentProfile.twitterUrl ?? ""),
+          instagramUrl: String(studentProfile.instagramUrl ?? ""),
         }
       : null,
     companyProfile: companyProfile
@@ -110,6 +115,10 @@ export async function getProfileByUsername(args: {
           country: String(companyProfile.country ?? ""),
           isRemote: Boolean(companyProfile.isRemote),
           description: String(companyProfile.description ?? ""),
+          websiteUrl: String(companyProfile.websiteUrl ?? ""),
+          linkedinUrl: String(companyProfile.linkedinUrl ?? ""),
+          twitterUrl: String(companyProfile.twitterUrl ?? ""),
+          instagramUrl: String(companyProfile.instagramUrl ?? ""),
         }
       : null,
     followersCount,

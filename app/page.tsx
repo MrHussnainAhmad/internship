@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -15,7 +15,7 @@ export const revalidate = 0;
 export const metadata: Metadata = {
   title: "Home Feed",
   description:
-    "LinkedIn-style professional feed with posts, suggestions, and profile insights.",
+    "Action-driven internship feed with high-match opportunities, applications, and profile progress.",
 };
 
 function LandingPage() {
@@ -96,17 +96,21 @@ export default async function HomePage() {
               initialItems={feed.items}
               initialHasMore={feed.hasMore}
               initialPage={feed.page}
+              viewerRole={session.user.role}
             />
           </div>
         </main>
 
         <div className="hidden xl:block">
           <SidebarRight
-            suggestions={sidebar.suggestions}
+            opportunities={sidebar.opportunities}
+            peopleLikeYou={sidebar.peopleLikeYou}
             showPostInternship={session.user.role === "company"}
+            viewerRole={session.user.role}
           />
         </div>
       </div>
     </section>
   );
 }
+

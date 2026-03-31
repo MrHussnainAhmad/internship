@@ -13,7 +13,7 @@ const payloadSchema = z.object({
     .toLowerCase()
     .regex(/^[a-z0-9_]{3,20}$/)
     .optional(),
-  bio: z.string().trim().max(500).optional(),
+  bio: z.string().trim().max(100).optional(),
   role: roleSchema,
 });
 
@@ -34,6 +34,7 @@ export async function GET(request: Request) {
         username: 1,
         role: 1,
         image: 1,
+        bio: 1,
       },
     }
   );
@@ -52,6 +53,7 @@ export async function GET(request: Request) {
       username: user.username ? String(user.username) : null,
       role: user.role ? String(user.role) : null,
       image: user.image ? String(user.image) : null,
+      bio: user.bio ? String(user.bio) : null,
     },
   });
 }

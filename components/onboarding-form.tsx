@@ -14,6 +14,10 @@ const defaultStudent = {
   country: "Pakistan",
   preferredType: "paid",
   resumeUrl: "",
+  portfolioUrl: "",
+  linkedinUrl: "",
+  twitterUrl: "",
+  instagramUrl: "",
 };
 
 const defaultCompany = {
@@ -23,11 +27,16 @@ const defaultCompany = {
   country: "Pakistan",
   isRemote: false,
   description: "",
+  websiteUrl: "",
+  linkedinUrl: "",
+  twitterUrl: "",
+  instagramUrl: "",
 };
 
 export function OnboardingForm() {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
+  const [bio, setBio] = useState("");
   const [role, setRole] = useState<Role>("student");
   const [isUsernameLocked, setIsUsernameLocked] = useState(false);
   const [isRoleLocked, setIsRoleLocked] = useState(false);
@@ -61,6 +70,7 @@ export function OnboardingForm() {
         if (!active) return;
 
         setName(profileJson.user?.name ?? "");
+        setBio(profileJson.user?.bio ?? "");
         const existingUsername = String(profileJson.user?.username ?? "").trim();
         const existingRole = profileJson.user?.role;
         setUsername(existingUsername);
@@ -81,6 +91,10 @@ export function OnboardingForm() {
               country: cJson.profile.country ?? "Pakistan",
               isRemote: Boolean(cJson.profile.isRemote),
               description: cJson.profile.description ?? "",
+              websiteUrl: cJson.profile.websiteUrl ?? "",
+              linkedinUrl: cJson.profile.linkedinUrl ?? "",
+              twitterUrl: cJson.profile.twitterUrl ?? "",
+              instagramUrl: cJson.profile.instagramUrl ?? "",
             });
           }
         } else {
@@ -97,6 +111,10 @@ export function OnboardingForm() {
               country: sJson.profile.country ?? "Pakistan",
               preferredType: sJson.profile.preferredType ?? "paid",
               resumeUrl: sJson.profile.resumeUrl ?? "",
+              portfolioUrl: sJson.profile.portfolioUrl ?? "",
+              linkedinUrl: sJson.profile.linkedinUrl ?? "",
+              twitterUrl: sJson.profile.twitterUrl ?? "",
+              instagramUrl: sJson.profile.instagramUrl ?? "",
             });
           }
         }
@@ -120,7 +138,7 @@ export function OnboardingForm() {
         const profileRes = await fetch("/api/profile", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, username, role }),
+          body: JSON.stringify({ name, username, bio, role }),
         });
         const profileData = await profileRes.json();
         if (!profileRes.ok) {
@@ -129,6 +147,17 @@ export function OnboardingForm() {
         }
 
         if (role === "student") {
+          const studentLinkCount = [
+            student.portfolioUrl,
+            student.linkedinUrl,
+            student.twitterUrl,
+            student.instagramUrl,
+          ].filter((value) => value.trim()).length;
+          if (studentLinkCount > 3) {
+            setMessage("Students can add at most 3 links.");
+            return;
+          }
+
           if (!resumeFile && !student.resumeUrl) {
             setMessage("Resume is required for student profile. Please upload a PDF (max 130KB).");
             return;
@@ -168,6 +197,24 @@ export function OnboardingForm() {
             setResumeFile(null);
           }
         } else {
+          const companyLinkCount = [
+            company.websiteUrl,
+            company.linkedinUrl,
+            company.twitterUrl,
+            company.instagramUrl,
+          ].filter((value) => value.trim()).length;
+          if (companyLinkCount > 3) {
+            setMessage("Companies can add at most 3 links.");
+            return;
+          }
+          if (
+            company.websiteUrl.trim() &&
+            !company.websiteUrl.trim().startsWith("https://")
+          ) {
+            setMessage("Company website must start with https://");
+            return;
+          }
+
           const res = await fetch("/api/company", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -219,6 +266,18 @@ export function OnboardingForm() {
           ) : null}
         </label>
       </div>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Bio (max 100 chars)
+        <textarea
+          value={bio}
+          onChange={(event) => setBio(event.target.value)}
+          className="min-h-20 rounded-md border border-slate-300 px-3 py-2"
+          maxLength={100}
+          placeholder="Write a short bio"
+        />
+        <span className="text-xs text-slate-500">{bio.length}/100</span>
+      </label>
 
       <label className="flex flex-col gap-1 text-sm">
         Role
@@ -349,6 +408,50 @@ export function OnboardingForm() {
               </a>
             ) : null}
           </label>
+          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+            Portfolio URL (optional)
+            <input
+              value={student.portfolioUrl}
+              onChange={(event) =>
+                setStudent((prev) => ({ ...prev, portfolioUrl: event.target.value }))
+              }
+              className="rounded-md border border-slate-300 px-3 py-2"
+              placeholder="https://..."
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            LinkedIn URL (optional)
+            <input
+              value={student.linkedinUrl}
+              onChange={(event) =>
+                setStudent((prev) => ({ ...prev, linkedinUrl: event.target.value }))
+              }
+              className="rounded-md border border-slate-300 px-3 py-2"
+              placeholder="https://..."
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            Twitter URL (optional)
+            <input
+              value={student.twitterUrl}
+              onChange={(event) =>
+                setStudent((prev) => ({ ...prev, twitterUrl: event.target.value }))
+              }
+              className="rounded-md border border-slate-300 px-3 py-2"
+              placeholder="https://..."
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+            Instagram URL (optional)
+            <input
+              value={student.instagramUrl}
+              onChange={(event) =>
+                setStudent((prev) => ({ ...prev, instagramUrl: event.target.value }))
+              }
+              className="rounded-md border border-slate-300 px-3 py-2"
+              placeholder="https://..."
+            />
+          </label>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -416,6 +519,50 @@ export function OnboardingForm() {
               className="min-h-28 rounded-md border border-slate-300 px-3 py-2"
               required
               maxLength={200}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+            Website URL (optional, must start with https://)
+            <input
+              value={company.websiteUrl}
+              onChange={(event) =>
+                setCompany((prev) => ({ ...prev, websiteUrl: event.target.value }))
+              }
+              className="rounded-md border border-slate-300 px-3 py-2"
+              placeholder="https://..."
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            LinkedIn URL (optional)
+            <input
+              value={company.linkedinUrl}
+              onChange={(event) =>
+                setCompany((prev) => ({ ...prev, linkedinUrl: event.target.value }))
+              }
+              className="rounded-md border border-slate-300 px-3 py-2"
+              placeholder="https://..."
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            Twitter URL (optional)
+            <input
+              value={company.twitterUrl}
+              onChange={(event) =>
+                setCompany((prev) => ({ ...prev, twitterUrl: event.target.value }))
+              }
+              className="rounded-md border border-slate-300 px-3 py-2"
+              placeholder="https://..."
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+            Instagram URL (optional)
+            <input
+              value={company.instagramUrl}
+              onChange={(event) =>
+                setCompany((prev) => ({ ...prev, instagramUrl: event.target.value }))
+              }
+              className="rounded-md border border-slate-300 px-3 py-2"
+              placeholder="https://..."
             />
           </label>
         </div>

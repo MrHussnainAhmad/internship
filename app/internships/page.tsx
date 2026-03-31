@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { auth } from "@/lib/auth";
 import { InternshipCard } from "@/components/internship-card";
 import { queryInternships } from "@/lib/internships";
 
@@ -19,6 +20,7 @@ function makeQuery(base: Record<string, string>, nextPage: number) {
 export default async function InternshipsPage(props: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const session = await auth();
   const searchParams = await props.searchParams;
 
   const q = asString(searchParams.q);
@@ -28,7 +30,16 @@ export default async function InternshipsPage(props: {
   const page = asString(searchParams.page) || "1";
   const limit = "10";
 
-  const result = await queryInternships({ q, location, level, type, page, limit });
+  const result = await queryInternships({
+    q,
+    location,
+    level,
+    type,
+    page,
+    limit,
+    excludeAppliedForStudentId:
+      session?.user?.role === "student" ? session.user.id : undefined,
+  });
   const totalPages = Math.max(1, Math.ceil(result.total / result.limit));
 
   return (

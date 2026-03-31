@@ -24,6 +24,7 @@ const internshipSchema = z.object({
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
+  const currentUser = await getApiUser(request);
   const result = await queryInternships({
     q: searchParams.get("q") ?? undefined,
     location: searchParams.get("location") ?? undefined,
@@ -32,6 +33,8 @@ export async function GET(request: NextRequest) {
     paid: searchParams.get("paid") ?? undefined,
     page: searchParams.get("page") ?? undefined,
     limit: searchParams.get("limit") ?? undefined,
+    excludeAppliedForStudentId:
+      currentUser?.role === "student" ? currentUser._id.toString() : undefined,
   });
   return NextResponse.json(result);
 }

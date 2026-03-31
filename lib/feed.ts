@@ -1,10 +1,16 @@
-import { ObjectId } from "mongodb";
+﻿import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/db";
 import { formatInternshipTitle } from "@/lib/format";
+
+type FeedSection =
+  | "high_match_internships"
+  | "other_internships"
+  | "normal_posts";
 
 type FeedItemPost = {
   id: string;
   kind: "post";
+  section: "normal_posts";
   createdAt: string;
   topic: string;
   content: string;
@@ -26,6 +32,7 @@ type FeedItemPost = {
 type FeedItemInternship = {
   id: string;
   kind: "internship";
+  section: Exclude<FeedSection, "normal_posts">;
   createdAt: string;
   slug: string;
   title: string;
@@ -37,6 +44,9 @@ type FeedItemInternship = {
   isRemote: boolean;
   companyName: string;
   skillsRequired: string[];
+  matchedSkills: string[];
+  matchPercent: number;
+  whyShown: string;
 };
 
 export type FeedItem = FeedItemPost | FeedItemInternship;
@@ -60,10 +70,33 @@ function toKeywords(values: string[]) {
       if (token.length >= 3) tokens.add(token);
     }
   }
-  return [...tokens].slice(0, 6);
+  return [...tokens].slice(0, 8);
 }
 
-async function getViewerKeywords(userId: ObjectId, role: string) {
+function normalizeSkills(values: unknown): string[] {
+  if (!Array.isArray(values)) return [];
+  const seen = new Set<string>();
+  for (const value of values) {
+    const skill = String(value ?? "").trim().toLowerCase();
+    if (!skill) continue;
+    seen.add(skill);
+  }
+  return [...seen];
+}
+
+function calculateMatch(requiredSkills: string[], viewerSkills: string[]) {
+  if (requiredSkills.length === 0 || viewerSkills.length === 0) {
+    return { matchedSkills: [] as string[], matchPercent: 0 };
+  }
+
+  const viewerSet = new Set(viewerSkills.map((value) => value.toLowerCase()));
+  const matchedSkills = requiredSkills.filter((skill) => viewerSet.has(skill.toLowerCase()));
+  const matchPercent = Math.round((matchedSkills.length / requiredSkills.length) * 100);
+
+  return { matchedSkills, matchPercent };
+}
+
+async function getViewerSignals(userId: ObjectId, role: string) {
   const db = await getDb();
 
   if (role === "student") {
@@ -71,8 +104,11 @@ async function getViewerKeywords(userId: ObjectId, role: string) {
       { userId },
       { projection: { skills: 1 } }
     );
-    const skills = Array.isArray(profile?.skills) ? profile.skills.map(String) : [];
-    return toKeywords(skills);
+    const skills = normalizeSkills(profile?.skills);
+    return {
+      viewerSkills: skills,
+      keywords: toKeywords(skills),
+    };
   }
 
   if (role === "company") {
@@ -88,14 +124,17 @@ async function getViewerKeywords(userId: ObjectId, role: string) {
         .limit(20)
         .toArray(),
     ]);
+
+    const skills = internships.flatMap((row) => normalizeSkills(row.skillsRequired));
     const industry = companyProfile?.industry ? [String(companyProfile.industry)] : [];
-    const internshipSkills = internships.flatMap((item) =>
-      Array.isArray(item.skillsRequired) ? item.skillsRequired.map(String) : []
-    );
-    return toKeywords([...industry, ...internshipSkills]);
+
+    return {
+      viewerSkills: [...new Set(skills)],
+      keywords: toKeywords([...industry, ...skills]),
+    };
   }
 
-  return [];
+  return { viewerSkills: [], keywords: [] };
 }
 
 export async function queryHomeFeed(args: {
@@ -107,20 +146,38 @@ export async function queryHomeFeed(args: {
   const db = await getDb();
   const page = Math.max(1, args.page ?? 1);
   const limit = Math.min(20, Math.max(1, args.limit ?? 10));
-  const take = page * limit * 2;
+  const take = page * limit * 4;
 
   const viewerObjectId = new ObjectId(args.viewerId);
-  const followingRows = await db
-    .collection("connections")
-    .find({ fromUserId: viewerObjectId })
-    .project({ toUserId: 1 })
-    .toArray();
+  const [{ viewerSkills, keywords }, followingRows] = await Promise.all([
+    getViewerSignals(viewerObjectId, args.viewerRole),
+    db
+      .collection("connections")
+      .find({ fromUserId: viewerObjectId })
+      .project({ toUserId: 1 })
+      .toArray(),
+  ]);
+
   const followingIds = followingRows
     .map((row) => row.toUserId)
     .filter((id): id is ObjectId => id instanceof ObjectId);
   const followingIdSet = new Set(followingIds.map((id) => id.toString()));
+  const appliedInternshipIds =
+    args.viewerRole === "student"
+      ? await db
+          .collection("applications")
+          .find(
+            { studentId: viewerObjectId },
+            { projection: { internshipId: 1 } }
+          )
+          .toArray()
+          .then((rows) =>
+            rows
+              .map((row) => row.internshipId)
+              .filter((id): id is ObjectId => id instanceof ObjectId)
+          )
+      : [];
 
-  const keywords = await getViewerKeywords(viewerObjectId, args.viewerRole);
   const keywordRegexes = keywords.map((term) => new RegExp(escapeRegex(term), "i"));
 
   const followWhere = followingIds.length > 0 ? { authorId: { $in: followingIds } } : null;
@@ -158,6 +215,7 @@ export async function queryHomeFeed(args: {
   const authorIds = [...new Set(posts.map((post) => String(post.authorId ?? "")).filter(Boolean))]
     .filter((id) => ObjectId.isValid(id))
     .map((id) => new ObjectId(id));
+
   const authors = authorIds.length
     ? await db
         .collection("users")
@@ -174,6 +232,7 @@ export async function queryHomeFeed(args: {
       return {
         id: post._id.toString(),
         kind: "post" as const,
+        section: "normal_posts" as const,
         createdAt: new Date(post.createdAt ?? Date.now()).toISOString(),
         topic: String(post.topic ?? ""),
         content: String(post.content ?? ""),
@@ -198,66 +257,96 @@ export async function queryHomeFeed(args: {
     })
     .filter((item): item is FeedItemPost => item !== null);
 
-  let internshipItems: FeedItemInternship[] = [];
-  if (args.viewerRole === "student") {
-    const internshipWhere =
-      keywords.length > 0 ? { skillsRequired: { $in: keywords } } : {};
-    const internships = await db
-      .collection("internships")
-      .find(internshipWhere)
-      .project({
-        slug: 1,
-        title: 1,
-        description: 1,
-        location: 1,
-        country: 1,
-        type: 1,
-        level: 1,
-        isRemote: 1,
-        skillsRequired: 1,
-        companyId: 1,
-        createdAt: 1,
-      })
-      .sort({ createdAt: -1 })
-      .limit(take)
-      .toArray();
+  const internships =
+    viewerSkills.length === 0
+      ? []
+      : await db
+          .collection("internships")
+          .find({
+            skillsRequired: { $in: viewerSkills },
+            ...(appliedInternshipIds.length > 0
+              ? { _id: { $nin: appliedInternshipIds } }
+              : {}),
+          })
+          .project({
+            slug: 1,
+            title: 1,
+            description: 1,
+            location: 1,
+            country: 1,
+            type: 1,
+            level: 1,
+            isRemote: 1,
+            skillsRequired: 1,
+            companyId: 1,
+            createdAt: 1,
+          })
+          .sort({ createdAt: -1 })
+          .limit(take)
+          .toArray();
 
-    const companyIds = internships
-      .map((internship) => internship.companyId)
-      .filter((id): id is ObjectId => id instanceof ObjectId);
-    const companyProfiles = companyIds.length
-      ? await db
-          .collection("companyProfiles")
-          .find({ userId: { $in: companyIds } })
-          .project({ userId: 1, companyName: 1 })
-          .toArray()
-      : [];
-    const companyMap = new Map(
-      companyProfiles.map((company) => [company.userId.toString(), String(company.companyName ?? "Company")])
-    );
-
-    internshipItems = internships.map((internship) => ({
-      id: internship._id.toString(),
-      kind: "internship" as const,
-      createdAt: new Date(internship.createdAt ?? Date.now()).toISOString(),
-      slug: String(internship.slug ?? ""),
-      title: formatInternshipTitle(String(internship.title ?? "")),
-      description: String(internship.description ?? ""),
-      location: String(internship.location ?? ""),
-      country: String(internship.country ?? ""),
-      type: String(internship.type ?? ""),
-      level: String(internship.level ?? ""),
-      isRemote: Boolean(internship.isRemote),
-      companyName: companyMap.get(String(internship.companyId ?? "")) ?? "Company",
-      skillsRequired: Array.isArray(internship.skillsRequired)
-        ? internship.skillsRequired.map(String)
-        : [],
-    }));
-  }
-
-  const merged = [...postItems, ...internshipItems].sort((a, b) =>
-    a.createdAt < b.createdAt ? 1 : -1
+  const companyIds = internships
+    .map((internship) => internship.companyId)
+    .filter((id): id is ObjectId => id instanceof ObjectId);
+  const companyProfiles = companyIds.length
+    ? await db
+        .collection("companyProfiles")
+        .find({ userId: { $in: companyIds } })
+        .project({ userId: 1, companyName: 1 })
+        .toArray()
+    : [];
+  const companyMap = new Map(
+    companyProfiles.map((company) => [company.userId.toString(), String(company.companyName ?? "Company")])
   );
+
+  const internshipItems: FeedItemInternship[] = internships
+    .map((internship) => {
+      const requiredSkills = normalizeSkills(internship.skillsRequired);
+      const { matchedSkills, matchPercent } = calculateMatch(requiredSkills, viewerSkills);
+
+      if (viewerSkills.length > 0 && matchedSkills.length === 0) {
+        return null;
+      }
+
+      const section: FeedItemInternship["section"] =
+        matchPercent >= 60 ? "high_match_internships" : "other_internships";
+
+      return {
+        id: internship._id.toString(),
+        kind: "internship" as const,
+        section,
+        createdAt: new Date(internship.createdAt ?? Date.now()).toISOString(),
+        slug: String(internship.slug ?? ""),
+        title: formatInternshipTitle(String(internship.title ?? "")),
+        description: String(internship.description ?? ""),
+        location: String(internship.location ?? ""),
+        country: String(internship.country ?? ""),
+        type: String(internship.type ?? ""),
+        level: String(internship.level ?? ""),
+        isRemote: Boolean(internship.isRemote),
+        companyName: companyMap.get(String(internship.companyId ?? "")) ?? "Company",
+        skillsRequired: requiredSkills,
+        matchedSkills,
+        matchPercent,
+        whyShown:
+          matchedSkills.length > 0
+            ? `Matched skills: ${matchedSkills.slice(0, 3).join(", ")}`
+            : "Shown because this internship is trending and recently posted.",
+      };
+    })
+    .filter((item): item is FeedItemInternship => item !== null)
+    .sort((a, b) => {
+      if (a.section !== b.section) {
+        return a.section === "high_match_internships" ? -1 : 1;
+      }
+      if (a.matchPercent !== b.matchPercent) return b.matchPercent - a.matchPercent;
+      return a.createdAt < b.createdAt ? 1 : -1;
+    });
+
+  const highMatch = internshipItems.filter((item) => item.section === "high_match_internships");
+  const otherMatch = internshipItems.filter((item) => item.section === "other_internships");
+
+  const merged: FeedItem[] = [...highMatch, ...otherMatch, ...postItems];
   const from = (page - 1) * limit;
   const to = from + limit;
 
@@ -269,3 +358,4 @@ export async function queryHomeFeed(args: {
     keywords,
   };
 }
+

@@ -1,8 +1,13 @@
-"use client";
+﻿"use client";
 
 import { useState, startTransition } from "react";
 
-export function ApplyButton({ internshipSlug }: { internshipSlug: string }) {
+type ApplyButtonProps = {
+  internshipSlug: string;
+  className?: string;
+};
+
+export function ApplyButton({ internshipSlug, className = "" }: ApplyButtonProps) {
   const [message, setMessage] = useState("");
   const [isPending, setIsPending] = useState(false);
 
@@ -36,7 +41,7 @@ export function ApplyButton({ internshipSlug }: { internshipSlug: string }) {
   };
 
   return (
-    <div className="flex flex-col items-end gap-2">
+    <div className={`flex flex-col gap-2 ${className}`}>
       <button
         type="button"
         title={isPending ? "Applying" : "Apply"}
@@ -58,7 +63,8 @@ export function ApplyButton({ internshipSlug }: { internshipSlug: string }) {
         )}
         <span>{isPending ? "Applying..." : "Apply now"}</span>
       </button>
-      {message ? <p className="text-right text-sm text-slate-600">{message}</p> : null}
+      {message ? <p className="text-sm text-slate-600">{message}</p> : null}
     </div>
   );
 }
+

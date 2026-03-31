@@ -1,8 +1,9 @@
-import { ObjectId } from "mongodb";
+﻿import { ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getApiUser } from "@/lib/api-auth";
 import { getDb } from "@/lib/db";
+import { ensureIndexes } from "@/lib/indexes";
 import { createNotification } from "@/lib/notifications";
 
 const schema = z.object({
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
 
   const application = await db.collection("applications").findOne(
     { _id: new ObjectId(parsed.data.applicationId) },
-    { projection: { _id: 1, internshipId: 1, studentId: 1 } }
+    { projection: { _id: 1, internshipId: 1, studentId: 1, status: 1 } }
   );
   if (!application) {
     return NextResponse.json({ error: "Application not found" }, { status: 404 });
@@ -53,6 +54,7 @@ export async function POST(request: Request) {
 
   const now = new Date();
   const decision = parsed.data.decision;
+  const previousStatus = String((application as { status?: unknown }).status ?? "pending");
 
   await db.collection("applications").updateOne(
     { _id: application._id },
@@ -80,5 +82,65 @@ export async function POST(request: Request) {
     link: `/internships/${String(internship.slug ?? "")}`,
   });
 
+  if (decision === "accepted" && previousStatus !== "accepted") {
+    await ensureIndexes();
+
+    const companyProfile = await db.collection("companyProfiles").findOne(
+      { userId: currentUser._id },
+      { projection: { companyName: 1 } }
+    );
+    const companyName =
+      String(companyProfile?.companyName ?? "").trim() ||
+      String(currentUser.name ?? "").trim() ||
+      "the hiring team";
+    const internshipTitle = String(internship.title ?? "this internship");
+
+    const chat = await db.collection("chats").findOneAndUpdate(
+      {
+        internshipId: internship._id,
+        companyId: currentUser._id,
+        studentId: application.studentId as ObjectId,
+      },
+      {
+        $set: {
+          updatedAt: now,
+          lastMessageAt: now,
+          internshipSlug: String(internship.slug ?? ""),
+        },
+        $setOnInsert: {
+          createdAt: now,
+        },
+      },
+      { upsert: true, returnDocument: "after" }
+    );
+
+    if (chat?._id) {
+      const autoMessage = [
+        `Hey, congrats! You have been selected by ${companyName}.`,
+        `You applied for: ${internshipTitle}.`,
+        "Welcome aboard. Please reply here so we can start the next steps.",
+        "",
+        "-- This message was sent automatically by InternHub --",
+      ].join("\n");
+
+      await db.collection("chatMessages").insertOne({
+        chatId: chat._id,
+        senderId: currentUser._id,
+        senderRole: "company",
+        text: autoMessage,
+        createdAt: now,
+      });
+
+      await createNotification({
+        userId: application.studentId as ObjectId,
+        type: "chat_message",
+        title: "New message from company",
+        body: `${companyName} sent you a message after accepting your application.`,
+        link: "/chats",
+      });
+    }
+  }
+
   return NextResponse.json({ ok: true, status: decision });
 }
+

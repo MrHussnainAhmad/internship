@@ -13,6 +13,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  webpack: (config) => {
+    // Some Windows filesystems/drivers in this environment error on readlink for
+    // regular files. Disabling symlink resolution avoids those readlink calls.
+    config.resolve = config.resolve || {};
+    config.resolve.symlinks = false;
+    return config;
+  },
 };
 
 export default nextConfig;
