@@ -5,6 +5,7 @@ import { startTransition, useEffect, useMemo, useState } from "react";
 import type { FeedItem } from "@/lib/feed";
 import { PostCard } from "@/components/PostCard";
 import { ApplyButton } from "@/components/apply-button";
+import { ShareMenu } from "@/components/share-menu";
 import { VerifiedBadge } from "@/components/verified-badge";
 
 type FeedProps = {
@@ -95,6 +96,12 @@ function InternshipCard({
       <div className="mt-4 flex items-center justify-between gap-3">
         <span className="text-xs uppercase tracking-wide text-slate-500">{item.level}</span>
         <div className="flex items-center gap-2">
+          <ShareMenu
+            sharePath={`/internships/${item.slug}`}
+            title={item.title}
+            description={item.description}
+            repostTarget={{ kind: "internship", internshipSlug: item.slug }}
+          />
           <Link
             href={`/internships/${item.slug}`}
             className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"

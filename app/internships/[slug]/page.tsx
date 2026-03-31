@@ -11,6 +11,7 @@ import { VerifiedBadge } from "@/components/verified-badge";
 import { auth } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { getInternshipBySlug, getRelatedInternships } from "@/lib/internships";
+import { toAbsoluteUrl } from "@/lib/site-url";
 
 type Params = { slug: string };
 
@@ -61,11 +62,29 @@ export async function generateMetadata(props: {
 
   if (!internship) return { title: "Internship not found" };
 
+  const title = `${internship.title} in ${internship.location}`;
+  const description = internship.description;
+  const canonical = `/internships/${internship.slug}`;
+  const imageUrl = internship.imageUrl ? toAbsoluteUrl(internship.imageUrl) : undefined;
+
   return {
-    title: `${internship.title} in ${internship.location}`,
-    description: internship.description,
+    title,
+    description,
     alternates: {
-      canonical: `/internships/${internship.slug}`,
+      canonical,
+    },
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      url: canonical,
+      images: imageUrl ? [{ url: imageUrl, width: 1200, height: 630 }] : undefined,
+    },
+    twitter: {
+      card: imageUrl ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: imageUrl ? [imageUrl] : undefined,
     },
   };
 }

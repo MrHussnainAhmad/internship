@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppHeader } from "@/components/app-header";
+import { getSiteBaseUrl } from "@/lib/site-url";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,12 +15,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteBaseUrl()),
   title: {
     default: "InternHub | Internship Marketplace",
     template: "%s | InternHub",
   },
   description:
     "A focused internship platform for students and companies. Discover, post, and match internships faster.",
+  openGraph: {
+    title: "InternHub | Internship Marketplace",
+    description:
+      "A focused internship platform for students and companies. Discover, post, and match internships faster.",
+    siteName: "InternHub",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "InternHub | Internship Marketplace",
+    description:
+      "A focused internship platform for students and companies. Discover, post, and match internships faster.",
+  },
 };
 
 export default function RootLayout({

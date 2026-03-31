@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, startTransition, useEffect, useMemo, useState } from "react";
 import type { FeedItem } from "@/lib/feed";
+import { ShareMenu } from "@/components/share-menu";
 
 type Props = {
   initialItems: FeedItem[];
@@ -235,41 +236,17 @@ function PostCard({ item }: { item: Extract<FeedItem, { kind: "post" }> }) {
     });
   };
 
-  const sharePost = () => {
-    if (busy) return;
-    setBusy(true);
-    setError("");
-
-    startTransition(async () => {
-      try {
-        const shareText = `${item.topic ? `${item.topic} - ` : ""}${item.content}`;
-        if (navigator.share) {
-          try {
-            await navigator.share({ text: shareText });
-          } catch {
-            // user may cancel share dialog
-          }
-        } else if (navigator.clipboard) {
-          await navigator.clipboard.writeText(shareText);
-        }
-
-        const response = await fetch("/api/posts/share", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ postId: item.id }),
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          setError(data.error ?? "Could not share post");
-          return;
-        }
-        setShareCount(Number(data.shareCount ?? shareCount + 1));
-      } catch {
-        setError("Could not share post");
-      } finally {
-        setBusy(false);
-      }
+  const trackShare = async () => {
+    const response = await fetch("/api/posts/share", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ postId: item.id }),
     });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error ?? "Could not share post");
+    }
+    setShareCount(Number(data.shareCount ?? 0));
   };
 
   const rootComments = commentsByParent.get("root") ?? [];
@@ -336,14 +313,14 @@ function PostCard({ item }: { item: Extract<FeedItem, { kind: "post" }> }) {
         >
           Comment
         </button>
-        <button
-          type="button"
-          onClick={sharePost}
-          disabled={busy}
-          className="rounded-md bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700"
-        >
-          Share
-        </button>
+        <ShareMenu
+          sharePath={`/posts/${item.id}`}
+          title={item.topic || "Post"}
+          description={item.content}
+          repostTarget={{ kind: "post", postId: item.id }}
+          onTrackShare={trackShare}
+          onError={(message) => setError(message)}
+        />
       </div>
 
       {commentsOpen ? (
@@ -494,12 +471,20 @@ function InternshipCard({
       </div>
       <div className="mt-3 flex items-center justify-between">
         <span className="text-xs uppercase tracking-wide text-slate-500">{item.level}</span>
-        <Link
-          href={`/internships/${item.slug}`}
-          className="text-sm font-semibold text-blue-700 hover:text-blue-900"
-        >
-          View details
-        </Link>
+        <div className="flex items-center gap-2">
+          <ShareMenu
+            sharePath={`/internships/${item.slug}`}
+            title={item.title}
+            description={item.description}
+            repostTarget={{ kind: "internship", internshipSlug: item.slug }}
+          />
+          <Link
+            href={`/internships/${item.slug}`}
+            className="text-sm font-semibold text-blue-700 hover:text-blue-900"
+          >
+            View details
+          </Link>
+        </div>
       </div>
     </article>
   );
