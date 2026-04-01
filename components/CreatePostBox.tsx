@@ -68,52 +68,49 @@ export function CreatePostBox() {
   return (
     <section
       ref={containerRef}
-      className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.06)]"
+      className="overflow-hidden rounded-xl border border-[#D6DCE5] bg-white shadow-[0_4px_20px_rgba(15,23,42,0.04)]"
     >
       {!open ? (
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold text-slate-700">
-            P
-          </div>
+        <div className="p-4">
           <button
             type="button"
             onClick={() => setOpen(true)}
-            title="Start post"
-            aria-label="Start post"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-50"
+            className="flex w-full items-center gap-3 rounded-lg border border-[#D6DCE5] bg-[#F8FAFC] px-4 py-3 text-left text-sm text-[#64748B] transition hover:border-[#B8C2D1] hover:bg-white"
           >
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 20h9" />
-              <path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z" />
-            </svg>
-            <span className="sr-only">Start a post</span>
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-[#E2E8F0] text-sm font-semibold text-[#334155]">
+              P
+            </span>
+            <span className="font-medium">Start a post</span>
           </button>
         </div>
       ) : (
-        <form onSubmit={submit} className="space-y-4">
-          <div className="border-b border-slate-200 pb-3">
-            <p className="text-sm font-semibold text-slate-900">Create a post</p>
-            <p className="mt-1 text-xs text-slate-500">Share an update with your network</p>
+        <form onSubmit={submit}>
+          <div className="border-b border-[#E2E8F0] px-5 py-4">
+            <p className="text-base font-semibold text-[#0F172A]">Create a post</p>
+            <p className="mt-1 text-xs text-[#64748B]">Share an update with your network</p>
           </div>
 
-          <input
-            value={topic}
-            onChange={(event) => setTopic(event.target.value)}
-            placeholder="Topic"
-            className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
-          />
+          <div className="space-y-4 px-5 py-5">
+            <input
+              value={topic}
+              onChange={(event) => setTopic(event.target.value)}
+              placeholder="Add a topic"
+              className="h-11 w-full rounded-lg border border-[#D6DCE5] bg-white px-3 text-sm text-[#0F172A] placeholder:text-[#64748B] focus:border-[#93C5FD] focus:outline-none"
+            />
 
-          <textarea
-            value={content}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder="What do you want to talk about?"
-            className="min-h-32 w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
-            maxLength={800}
-            required
-          />
+            <textarea
+              value={content}
+              onChange={(event) => setContent(event.target.value)}
+              placeholder="What do you want to talk about?"
+              className="min-h-36 w-full rounded-lg border border-[#D6DCE5] bg-white px-3 py-3 text-sm leading-6 text-[#0F172A] placeholder:text-[#64748B] focus:border-[#93C5FD] focus:outline-none"
+              maxLength={800}
+              required
+            />
+          </div>
 
-          <div className="flex items-center justify-between gap-3">
-            {error ? <p className="text-xs text-red-600">{error}</p> : <span />}
+          <div className="flex items-center justify-between border-t border-[#E2E8F0] px-5 py-4">
+            {error ? <p className="text-xs text-[#DC2626]">{error}</p> : <span />}
+
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -123,35 +120,16 @@ export function CreatePostBox() {
                   setContent("");
                   setError("");
                 }}
-                title="Cancel"
-                aria-label="Cancel"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-slate-700 transition hover:bg-slate-50"
+                className="inline-flex h-10 items-center justify-center rounded-lg border border-[#D6DCE5] px-4 text-sm font-medium text-[#475569] transition hover:bg-[#F8FAFC]"
               >
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="m18 6-12 12" />
-                  <path d="m6 6 12 12" />
-                </svg>
-                <span className="sr-only">Cancel</span>
+                Cancel
               </button>
               <button
                 type="submit"
                 disabled={busy}
-                title={busy ? "Posting" : "Post"}
-                aria-label={busy ? "Posting" : "Post"}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white transition hover:bg-slate-800 disabled:opacity-60"
+                className="inline-flex h-10 items-center justify-center rounded-lg bg-[#2563EB] px-5 text-sm font-semibold text-white transition hover:bg-[#1D4ED8] disabled:opacity-60"
               >
-                {busy ? (
-                  <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="9" className="opacity-30" />
-                    <path d="M21 12a9 9 0 0 0-9-9" />
-                  </svg>
-                ) : (
-                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="m22 2-7 20-4-9-9-4Z" />
-                    <path d="M22 2 11 13" />
-                  </svg>
-                )}
-                <span className="sr-only">{busy ? "Posting..." : "Post"}</span>
+                {busy ? "Posting..." : "Post"}
               </button>
             </div>
           </div>
